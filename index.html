@@ -265,6 +265,27 @@ kbd{font:400 12px var(--disp);color:var(--cyan);padding:2px 9px;background:var(-
 @media (max-width:380px){.info{height:362px}.stage{min-height:610px}}
 @media (max-width:340px){.info{height:430px}.stage{min-height:660px}}
 @media (max-width:1180px){.palm{display:none}}
+
+/* ---------- 16:9 canvas mode (wide screens): a 1280x720 stage that scales to fill the screen ---------- */
+#app{display:contents}
+html.canvas,html.canvas body{overflow:hidden;height:100%}
+html.canvas #app{
+  display:flex;flex-direction:column;position:fixed;z-index:1;left:50%;top:50%;width:1280px;height:720px;
+  transform:translate(-50%,-50%) scale(var(--s,1));transform-origin:50% 50%;
+}
+html.canvas .top-in{max-width:none;padding:6px 28px}
+html.canvas main{max-width:none;padding:10px 28px 36px;overflow:auto;min-height:0}
+html.canvas .ticker{position:absolute}
+html.canvas .palm,html.canvas .sun{display:none}
+html.canvas .info{width:400px}
+html.canvas #subprompt{font-size:18px}
+html.canvas .legend{font-size:14.5px}
+html.canvas .mchip{font-size:13px}
+html.canvas .msg{font-size:17.5px}
+html.canvas #resLine{font-size:15px}
+html.canvas .fact{font-size:14px}
+html.canvas .rhead img{width:80px;height:80px}
+html.canvas #done{padding:18px 30px}
 @media (prefers-reduced-motion:reduce){
   .hop,.infores,.ticker-in,.brand h1::before,.brand h1::after{animation:none}
   .brand h1::before,.brand h1::after{display:none}
@@ -286,6 +307,7 @@ kbd{font:400 12px var(--disp);color:var(--cyan);padding:2px 9px;background:var(-
     </g>
   </defs></svg>
 </div>
+<div id="app">
 <header class="top"><div class="top-in">
   <div class="brand">
     <svg id="gears" class="logo" viewBox="0 0 96 68" aria-hidden="true"></svg>
@@ -327,7 +349,7 @@ kbd{font:400 12px var(--disp);color:var(--cyan);padding:2px 9px;background:var(-
             <div class="legend">
               <span><i class="dot b"></i><span id="legRef"></span></span>
               <span><i class="dot o"></i><span id="legTgt"></span></span>
-              <span id="murphyChip" class="mchip" hidden><img id="mcImg" alt="Murphy the Shih Tzu" width="34" height="34"><span>Meet Murphy, a 15 lb Shih Tzu! We use his nose-to-tail length.</span></span>
+              <span id="murphyChip" class="mchip" hidden><img id="mcImg" alt="Murphy the Shih Tzu" width="34" height="34"><span>We use Murphy's nose-to-tail length.</span></span>
             </div>
             <p id="hint" class="hint"></p>
           </div>
@@ -373,6 +395,8 @@ kbd{font:400 12px var(--disp);color:var(--cyan);padding:2px 9px;background:var(-
 </main>
 
 <div class="ticker" aria-hidden="true"><div class="ticker-in"><span>Enter = lock it in</span><i>//</i><span>Enter or Space = next round</span><i>//</i><span>drag the shapes to compare</span><i>//</i><span>5 rounds a day</span><i>//</i><span>Murphy approved</span><i>//</i><span>Enter = lock it in</span><i>//</i><span>Enter or Space = next round</span><i>//</i><span>drag the shapes to compare</span><i>//</i><span>5 rounds a day</span><i>//</i><span>Murphy approved</span><i>//</i></div></div>
+
+</div>
 
 <script>
 /* ============================================================
@@ -979,6 +1003,7 @@ function picFor(score,seed){const tier=score>=95?'top':score>=80?'high':score>=5
 /*DOM*/
 if(typeof document!=='undefined'){
 const $=s=>document.querySelector(s);
+let SCALE=1;
 const params=new URLSearchParams(location.search);
 const TEACHER=params.has('teacher');
 function nyToday(){
@@ -1062,7 +1087,7 @@ const R=()=>TH[cur().ref], T=()=>TH[cur().tgt];
 const sumScores=()=>G.prog.s.reduce((a,b)=>a+b,0);
 
 /* ----- stage painting ----- */
-function stageSize(){const r=$('#stage').getBoundingClientRect();return{W:r.width||600,H:r.height||450}}
+function stageSize(){const g=$('.glass');return{W:g.offsetWidth||600,H:g.offsetHeight||450}}
 /* wide screens: the readout is a side panel; narrow screens: a band across the top */
 function panelInfo(W){const i=$('#stageInfo'),iw=i.offsetWidth,ih=i.offsetHeight;return iw<W*0.8?{side:iw,band:0}:{side:0,band:ih}}
 function shapeEl(th,which,x,y,w,h,cls){
@@ -1283,10 +1308,10 @@ wrap.addEventListener('pointerdown',e=>{
 wrap.addEventListener('pointermove',e=>{
   if(!drag)return;
   if(drag.mode==='size'){
-    G.t=Math.max(0,Math.min(1,drag.t+(drag.y-e.clientY)/420));
+    G.t=Math.max(0,Math.min(1,drag.t+(drag.y-e.clientY)/SCALE/420));
     $('#slider').value=Math.round(G.t*1000);
   }else{
-    G.pos[drag.which]={cx:drag.cx+(e.clientX-drag.x),by:drag.by+(e.clientY-drag.y)};
+    G.pos[drag.which]={cx:drag.cx+(e.clientX-drag.x)/SCALE,by:drag.by+(e.clientY-drag.y)/SCALE};
   }
   repaint();
 });
@@ -1306,7 +1331,16 @@ $('#share').addEventListener('click',async()=>{
   setTimeout(()=>{$('#share').textContent='Copy my score'},2500);
 });
 $('#again').addEventListener('click',()=>{try{localStorage.removeItem(key(G.day))}catch(e){}startDay(G.day)});
+/* wide landscape screens get a 16:9 canvas (1280x720) scaled to fit; everything else stays fluid */
+function fitCanvas(){
+  const w=innerWidth,h=innerHeight,use=w>=1000&&w/h>=1.45;
+  document.documentElement.classList.toggle('canvas',use);
+  if(use){SCALE=Math.min(w/1280,h/720);document.documentElement.style.setProperty('--s',SCALE)}
+  else{SCALE=1;document.documentElement.style.removeProperty('--s')}
+}
+addEventListener('resize',()=>{fitCanvas();repaint()});
 new ResizeObserver(()=>repaint()).observe($('#stageWrap'));
+fitCanvas();
 
 if(TEACHER){
   const tb=$('#teacherBar');tb.hidden=false;
