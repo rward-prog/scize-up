@@ -2047,7 +2047,7 @@ function showDone(){
   $('#doneBubble').textContent=totalMsg(tot,G.day,gentleDay);
   const dk=picFor(tot/ROUNDS,G.day);$('#donePic').src=PICS[dk][0];$('#donePic').alt=capFor(dk,tot/ROUNDS,gentleDay);$('#doneCap').textContent=capFor(dk,tot/ROUNDS,gentleDay);
   $('#dayNote').textContent=DAY_NOTE[G.day]||'';$('#dayNote').hidden=!DAY_NOTE[G.day];
-  $('#challenge').hidden=gentleDay;
+  $('#challenge').hidden=false;
   renderVs();
   setTotal(tot);
   $('#doneTitle').textContent=G.day===TODAY?'Today\'s game is complete!':'Game complete!';
