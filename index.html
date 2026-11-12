@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Scize It Up</title>
+<link rel="icon" type="image/png" href="img/icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bungee&family=Monoton&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -246,6 +247,23 @@ kbd{font:400 12px var(--disp);color:var(--cyan);padding:2px 9px;background:var(-
 .boardcap{margin:2px 0 6px;font:700 11.5px/1.4 var(--mono);color:var(--dim)}
 .bleg{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;font:700 11px var(--mono);color:var(--dim)}
 .daynote{margin:14px 0 0;padding:8px 12px;border-left:4px solid var(--cyan);background:rgba(25,227,255,.07);font:700 12.5px/1.5 var(--mono);color:var(--cyan)}
+.vs{max-width:560px;margin:12px 0 0;padding:10px 14px;border:3px solid var(--pink);background:rgba(255,46,151,.08);box-shadow:5px 5px 0 var(--purple)}
+.vs h3{margin:0 0 8px;font:400 17px var(--disp);letter-spacing:.03em;text-transform:uppercase;color:var(--cyan)}
+.vsbig{display:flex;align-items:baseline;gap:14px;font:400 18px var(--disp);text-transform:uppercase;color:var(--dim)}
+.vsbig b{font-size:34px;color:var(--txt)}
+.vsbig em{font:700 13px var(--mono);color:var(--dim)}
+.vsbig .win,.vsbig .win b{color:var(--yellow);text-shadow:0 0 10px rgba(255,228,94,.7)}
+.vsrounds{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.vsrounds span{padding:2px 8px;border:2px solid rgba(155,92,255,.65);font:700 13px var(--mono);color:var(--dim)}
+.vsrounds i{font-style:normal;margin-right:6px;color:var(--cyan)}
+.vsrounds b{color:var(--txt)}
+.vsrounds b.win{color:var(--yellow)}
+.vs th,.vs td{padding:4px 8px;text-align:center;border-bottom:1px solid rgba(155,92,255,.35)}
+.vs th{color:var(--dim);font-weight:400}
+.vs td.win{color:var(--yellow);text-shadow:0 0 8px rgba(255,228,94,.7)}
+.vs tfoot td{border-bottom:0;font-size:16px}
+.vs .verdict{margin:8px 0 0;font:700 15px/1.4 var(--body);color:var(--txt)}
+.challengebanner{margin:0 0 8px;padding:6px 10px;border-left:4px solid var(--pink);background:rgba(255,46,151,.1);font:700 12.5px/1.5 var(--mono);color:var(--hot)}
 .bleg i{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:5px;border:1.5px solid #fff;vertical-align:-1px}
 .t-top{background:var(--yellow)}.t-mid{background:var(--cyan)}.t-low{background:var(--pink)}
 .dart{transform-box:fill-box;transform-origin:center;animation:land .6s cubic-bezier(.2,.9,.3,1.25) both}
@@ -351,6 +369,7 @@ kbd{font:400 12px var(--disp);color:var(--cyan);padding:2px 9px;background:var(-
 .chart{flex:1 1 300px;min-width:240px}
 .chart svg{display:block;width:100%;height:auto}
 .medal{flex:none;width:92px;text-align:center;font:400 12px var(--disp);color:var(--yellow);text-transform:uppercase}
+.medal img{display:block;width:auto;height:92px;max-width:100%;margin:0 auto 2px}
 .medal svg{width:70px;height:84px;display:block;margin:0 auto 2px;filter:drop-shadow(0 0 8px currentColor)}
 .demo{display:inline-block;margin:0 0 8px;padding:2px 8px;border:1px dashed var(--yellow);font:700 11px var(--mono);color:var(--yellow)}
 .crowd{grid-column:1/-1;display:grid;grid-template-columns:auto 1fr;gap:6px 14px;align-items:center;margin-top:6px;padding:8px 10px;border:1px dashed var(--purple);background:rgba(155,92,255,.07)}
@@ -511,8 +530,10 @@ html.canvas .board{flex-basis:360px;width:360px}
         </div>
         <div class="row">
           <button id="share" class="btn" type="button">Copy my score</button>
+          <button id="challenge" class="btn alt" type="button">Challenge a friend</button>
           <button id="again" class="btn alt" type="button" hidden>Play again (teacher)</button>
         </div>
+        <div id="vs" class="vs" hidden></div>
       </div>
       <div class="board">
         <svg id="dartboard" viewBox="0 0 320 340" role="img" aria-label="Target practice board showing where each of your five guesses landed"></svg>
@@ -735,6 +756,44 @@ SH.fitz={w:100,h:14,svg:`<polygon class="c" points="0,7 100,7 97,14 3,14"/><rect
 SH.liner={w:100,h:17,svg:`<polygon class="c" points="0,9 93,9 100,11 94,17 3,17"/><rect class="l" x="0" y="9" width="96" height="1.5" opacity=".85"/><rect class="d" x="10" y="4" width="78" height="5"/>`+[28,40,52,64].map(x=>`<rect class="c" x="${x}" y="0.5" width="5" height="4.5"/><rect class="d" x="${x}" y="0.5" width="5" height="1.2"/>`).join('')+`<rect class="d" x="14" y="2" width="1" height="2"/><rect class="d" x="84" y="2" width="1" height="2"/>`};
 SH.fitzbeam={w:100,h:10.3,svg:`<polygon class="c" points="0,1.2 88,0 100,5.15 88,10.3 0,9.1"/><rect class="l" x="2" y="1.6" width="14" height="7.1" opacity=".9"/><rect class="d" x="86" y="2.6" width="9" height="5.1" opacity=".85"/>`+ring(10,i=>`<rect class="d" x="${22+i*6.2}" y="2.2" width="4.4" height="5.9" opacity=".7"/>`)};
 SH.fitzdepth={w:36,h:161.5,svg:`<rect class="c" x="0" y="6" width="36" height="155.5"/><path class="l" d="M0 6 q4.5 -6 9 0 t9 0 t9 0 t9 0 V12 H0Z" opacity=".95"/><path class="sl" stroke-width="1.4" stroke-dasharray="4 3" d="M18 18 V140"/><polygon class="l" points="18,150 12,138 24,138" opacity=".9"/><polygon class="d" points="3,156 33,156 30.5,161.5 5.5,161.5"/><rect class="d" x="5" y="152.5" width="6" height="3.5"/><rect class="d" x="27" y="152.5" width="4" height="3.5"/>`};
+/* ---------- waves of light and radio, a phone, and an Easter Island statue ---------- */
+const waveShape=(attrs,dash)=>({w:100,h:50,svg:`<path fill="none" ${attrs} stroke-width="4.5" stroke-linecap="round"${dash?` stroke-dasharray="${dash}"`:''} d="M2 25 C16 -3 36 -3 50 25 S84 53 98 25"/><path class="sl" stroke-width="1.6" d="M2 46 V50 M98 46 V50 M2 48 H98"/>`});
+SH.wave=waveShape('class="sc"');
+SH.wave_violet=waveShape('stroke="#B25CFF"');
+SH.wave_red=waveShape('stroke="#FF4B3A"');
+SH.wave_ir=waveShape('stroke="#FFD3AE"','7 6');
+SH.wave_x=waveShape('stroke="#BFE8FF"');
+SH.phone={w:40,h:82,svg:`<rect class="c" x="0" y="0" width="40" height="82" rx="7"/><rect class="l" x="3" y="4" width="34" height="74" rx="4.5" opacity=".9"/><rect class="d" x="14" y="6" width="12" height="3" rx="1.5"/><circle class="d" cx="30" cy="7.5" r="1.6"/><rect class="d" x="13" y="76" width="14" height="1.6" rx=".8" opacity=".7"/>`};
+SH.moai={w:40,h:100,svg:`<path class="c" d="M7 0 H33 L35 16 L34 50 L30 60 H10 L6 50 L5 16Z"/><path class="c" d="M10 60 H30 L38 100 H2Z"/><rect class="d" x="7" y="15" width="26" height="3" opacity=".55"/><rect class="d" x="9" y="19" width="9" height="5" rx="1"/><rect class="d" x="22" y="19" width="9" height="5" rx="1"/><polygon class="d" points="18,24 22,24 24.5,43 15.5,43"/><rect class="d" x="12" y="49" width="16" height="2.6" rx="1.2"/><rect class="l" x="1" y="22" width="4" height="22"/><rect class="l" x="35" y="22" width="4" height="22"/><path class="sl" stroke-width="1.4" d="M12 72 H28 M10 82 H30 M8 92 H32"/>`};
+/* ---------- tech, sports, animals, body and sound shapes (simple placeholders until the neon art arrives) ---------- */
+SH.pixel={w:40,h:40,svg:`<rect class="c" x="0" y="0" width="40" height="40" rx="5"/><rect x="5" y="5" width="8.5" height="30" rx="1.5" fill="#FF4B3A"/><rect x="15.7" y="5" width="8.5" height="30" rx="1.5" fill="#3DDC84"/><rect x="26.5" y="5" width="8.5" height="30" rx="1.5" fill="#4D8BFF"/>`};
+SH.ps5={w:27,h:100,svg:`<rect class="c" x="0" y="0" width="27" height="100" rx="9"/><path class="l" d="M3 6 Q13.5 -2 24 6 V94 Q13.5 102 3 94Z" opacity=".95"/><rect class="d" x="11" y="14" width="5" height="72" rx="2.5"/><rect x="12.4" y="20" width="2.2" height="60" rx="1.1" fill="#4D8BFF"/>`};
+SH.starship={w:9,h:121,svg:`<path class="c" d="M4.5 0 C7 10 9 22 9 38 V121 H0 V38 C0 22 2 10 4.5 0Z"/><rect class="l" x="0" y="52" width="9" height="1.6" opacity=".9"/><rect class="d" x="-1.6" y="42" width="1.6" height="12"/><rect class="d" x="9" y="42" width="1.6" height="12"/><rect class="d" x="-1.2" y="96" width="1.2" height="14"/><rect class="d" x="9" y="96" width="1.2" height="14"/><path class="sd" stroke-width=".7" d="M1.8 121 V111 M4.5 121 V111 M7.2 121 V111"/>`};
+SH.hoop={w:37,h:61,svg:`<rect class="c" x="-0.6" y="-22" width="37.8" height="21.4" rx="1"/><rect class="d" x="9" y="-18" width="19" height="12" opacity=".6"/><rect class="l" x="9" y="-18" width="19" height="1.4" opacity=".9"/><rect class="d" x="16.8" y="-1" width="3.4" height="5"/><ellipse class="sl" cx="18.5" cy="2.5" rx="12" ry="2.6" fill="none" stroke-width="2.4" style="stroke:#FF7A1A"/><path class="sl" stroke-width="1" d="M6.5 3 L12 16 M30.5 3 L25 16 M18.5 5 V16 M12 16 H25"/><rect class="c" x="16.9" y="4" width="3.2" height="57"/>`};
+SH.rim={w:100,h:80,svg:`<ellipse cx="50" cy="8" rx="49" ry="7" fill="none" stroke="#FF7A1A" stroke-width="3.6"/><path class="sl" stroke-width="2" d="M4 10 L28 76 M20 12 L38 78 M50 14 V80 M80 12 L62 78 M96 10 L72 76 M28 76 H72 M13 43 H87 M36 78 L72 78"/>`};
+SH.court={w:100,h:53,svg:`<rect class="c" x="0" y="0" width="100" height="53" rx="1.5"/><path class="sl" stroke-width="1.4" d="M50 2 V51 M2 2 H98 V51 H2Z"/><circle class="sl" cx="50" cy="26.5" r="6.4" fill="none" stroke-width="1.4"/><rect class="sl" x="2" y="17" width="19" height="19" fill="none" stroke-width="1.4"/><rect class="sl" x="79" y="17" width="19" height="19" fill="none" stroke-width="1.4"/><path class="sl" fill="none" stroke-width="1.4" d="M2 6 Q27 26.5 2 47 M98 6 Q73 26.5 98 47"/>`};
+SH.marathon={w:100,h:10,svg:`<rect class="c" x="0" y="2" width="100" height="6" rx="3"/><path class="sl" stroke-width="1" stroke-dasharray="3 2.5" d="M3 5 H92"/>`+ring(9,i=>`<rect class="l" x="${9.5+i*10}" y="0" width=".8" height="10" opacity=".7"/>`)+`<rect class="d" x="94" y="0" width="5" height="10"/><rect class="l" x="94" y="0" width="2.5" height="5"/><rect class="l" x="96.5" y="5" width="2.5" height="5"/>`};
+SH.pool={w:100,h:50,svg:`<rect class="c" x="0" y="0" width="100" height="50" rx="2"/>`+ring(9,i=>`<path class="sl" stroke-width="1.1" d="M4 ${5+i*5} H96" stroke-dasharray="${i%2?'2 1.5':'6 1'}"/>`)+`<rect class="d" x="0" y="0" width="3" height="50"/><rect class="d" x="97" y="0" width="3" height="50"/>`};
+SH.mound={w:100,h:18,svg:`<polygon class="c" points="0,3 8,0 16,3 16,10 0,10"/><path class="sl" stroke-width="1.6" stroke-dasharray="4 3" d="M20 7 H80"/><ellipse class="c" cx="92" cy="9" rx="8" ry="6"/><rect class="l" x="89" y="7" width="6" height="2.4" rx="1"/><path class="sl" stroke-width="1.6" d="M0 16 V18 M100 16 V18 M0 17 H100"/>`};
+SH.shark={w:100,h:30,svg:`<path class="c" d="M0 4 Q10 14 22 18 Q42 6 66 7 Q88 9 100 16 Q86 22 70 24 Q56 27 36 26 Q28 29 20 29 Q14 26 18 22 Q8 22 0 28 Q8 18 0 4Z"/><path class="c" d="M44 8 L52 -2 L59 8Z"/><path class="d" d="M62 25 L58 30 L48 26Z"/><circle class="d" cx="86" cy="15" r="1.2"/><path class="sd" stroke-width=".9" d="M76 17 Q80 20 84 19 M66 14 V20 M69 13.5 V20.5 M72 13 V21"/>`};
+SH.whaleshark={w:100,h:26,svg:`<path class="c" d="M0 2 Q10 11 24 14 Q50 6 74 8 Q94 10 100 14 Q94 20 76 22 Q56 25 36 24 Q26 26 20 25 Q14 22 18 18 Q8 18 0 24 Q6 14 0 2Z"/><path class="d" d="M44 9 L50 2 L56 9Z"/>`+ring(5,i=>`<circle class="l" cx="${30+i*12}" cy="${14+(i%2?3:-1)}" r="1.1"/><circle class="l" cx="${36+i*12}" cy="${11+(i%2?-1:2)}" r=".9"/>`)+`<circle class="d" cx="92" cy="14" r="1"/>`};
+SH.squid={w:100,h:24,svg:`<path class="c" d="M0 12 L12 2 Q22 0 30 6 L34 11 Q36 13 34 15 L30 18 Q22 24 12 22Z"/><path class="c" d="M34 7 Q42 6 48 10 Q50 12 48 14 Q42 18 34 17Z"/><circle class="d" cx="43" cy="12" r="2.3"/><circle class="l" cx="43.6" cy="11.6" r=".8"/><path class="sc" fill="none" stroke-width="1.6" d="M48 9 Q64 4 76 7 M48 11 Q66 8 82 11 M48 12.5 Q68 12 86 14 M48 14 Q66 17 80 19 M48 15 Q62 21 72 22"/><path class="sc" fill="none" stroke-width=".9" d="M48 10 Q80 -1 100 5 M48 13.5 Q84 20 100 18"/>`};
+SH.megatooth={w:70,h:100,svg:`<path class="c" d="M0 100 C8 62 22 28 35 0 C48 28 62 62 70 100 C55 92 15 92 0 100Z"/><path class="sd" stroke-width="1.6" d="M30 8 L16 52 M40 8 L54 52 M20 70 Q35 64 50 70"/><path class="l" d="M3 96 C8 84 22 82 35 83 C48 82 62 84 67 96 C55 91 15 91 3 96Z" opacity=".9"/>`};
+SH.ward={w:40,h:70,svg:`<circle class="c" cx="20" cy="6.5" r="6.5"/><path class="c" d="M7 17 Q20 12 33 17 L36 40 Q38 47 33 48 L33 70 H22.5 V50 H17.5 V70 H7 V48 Q2 47 4 40Z"/><path class="l" d="M9 21 Q20 17 31 21 L32 36 Q20 40 8 36Z" opacity=".55"/>`};
+SH.dnastretch={w:100,h:12,svg:`<path class="sc" fill="none" stroke-width="1.8" d="M0 6 C4 -2 8 -2 12.5 6 S21 14 25 6 S33 -2 37.5 6 S46 14 50 6 S58 -2 62.5 6 S71 14 75 6 S83 -2 87.5 6 S96 14 100 6"/><path class="sl" fill="none" stroke-width="1.8" d="M0 6 C4 14 8 14 12.5 6 S21 -2 25 6 S33 14 37.5 6 S46 -2 50 6 S58 14 62.5 6 S71 -2 75 6 S83 14 87.5 6 S96 -2 100 6"/>`};
+SH.gut={w:100,h:14,svg:`<path class="c" d="M0 3 Q12 -1 25 4 T50 4 T75 4 T100 3 V11 Q88 15 75 10 T50 10 T25 10 T0 11Z"/><path class="sl" fill="none" stroke-width="1.2" d="M2 7 Q14 3 25 7 T50 7 T75 7 T98 7" opacity=".9"/>`};
+/* ---------- shapes for the special days (simple drawings; neon art can replace them later) ---------- */
+SH.span={w:100,h:12,svg:`<rect class="c" x="0" y="0" width="3" height="12"/><rect class="c" x="97" y="0" width="3" height="12"/><path class="sl" stroke-width="2.4" stroke-dasharray="6 4" d="M5 6 H95"/>`};
+SH.alt={w:12,h:100,svg:`<rect class="c" x="0" y="0" width="12" height="3"/><rect class="c" x="0" y="97" width="12" height="3"/><path class="sl" stroke-width="2.4" stroke-dasharray="6 4" d="M6 5 V95"/>`};
+SH.beagle={w:100,h:62,svg:`<path class="c" d="M2 44 L98 44 Q92 60 76 61 H22 Q8 60 2 44Z"/><rect class="d" x="14" y="40" width="72" height="4"/><rect class="l" x="26" y="3" width="2.4" height="38"/><rect class="l" x="49" y="0" width="2.4" height="41"/><rect class="l" x="72" y="6" width="2.4" height="35"/><path class="c" d="M29 6 H46 L44 26 H31Z M52 3 H71 L69 28 H54Z M75 9 H92 L90 28 H77Z" opacity=".9"/>`};
+SH.tortoise={w:100,h:62,svg:`<path class="c" d="M8 46 Q10 6 52 6 Q92 6 94 46Z"/><path class="sl" stroke-width="2" d="M30 46 Q32 20 52 18 Q72 20 74 46 M52 18 V46"/><path class="c" d="M94 40 Q100 36 100 44 Q98 50 92 48Z"/><rect class="c" x="14" y="46" width="12" height="14" rx="4"/><rect class="c" x="70" y="46" width="12" height="14" rx="4"/>`};
+SH.finch={w:100,h:80,svg:`<ellipse class="c" cx="48" cy="48" rx="34" ry="26"/><circle class="c" cx="78" cy="30" r="16"/><polygon class="l" points="92,26 100,31 92,36"/><circle class="d" cx="82" cy="27" r="2.6"/><path class="c" d="M14 50 L0 62 L18 62Z"/><path class="sl" stroke-width="3" d="M44 72 V80 M56 72 V80"/>`};
+SH.lrv={w:100,h:46,svg:`<rect class="c" x="14" y="16" width="72" height="12" rx="3"/><rect class="d" x="34" y="4" width="18" height="12" rx="2"/><path class="sl" stroke-width="2" d="M40 4 L36 -4 M46 4 L50 -4"/><circle class="l" cx="18" cy="34" r="12"/><circle class="l" cx="82" cy="34" r="12"/><circle class="d" cx="18" cy="34" r="4"/><circle class="d" cx="82" cy="34" r="4"/>`};
+SH.wrightflyer={w:100,h:30,svg:`<rect class="c" x="0" y="0" width="100" height="6" rx="2"/><rect class="c" x="0" y="20" width="100" height="6" rx="2"/><path class="sl" stroke-width="1.6" d="M10 6 V20 M26 6 V20 M42 6 V20 M58 6 V20 M74 6 V20 M90 6 V20"/><rect class="d" x="45" y="8" width="10" height="10" rx="2"/>`};
+SH.sarsen={w:21,h:40,svg:`<path class="c" d="M1 40 L0 6 Q2 0 10 0 Q19 0 21 6 L20 40Z"/><path class="sl" stroke-width=".9" d="M5 30 H16 M4 20 H17 M5 11 H16" opacity=".7"/>`};
+SH.stonecircle={w:100,h:100,svg:ring(30,i=>{const a=i/30*6.28318;return `<rect class="c" x="${(50+44*Math.cos(a)-3.2).toFixed(1)}" y="${(50+44*Math.sin(a)-3.2).toFixed(1)}" width="6.4" height="6.4" rx="1.4"/>`})};
+SH.ball={w:100,h:100,svg:`<circle class="c" cx="50" cy="50" r="50"/><path class="sl" stroke-width="1.4" fill="none" d="M50 0 L50 100 M0 50 L100 50 M15 15 L85 85 M85 15 L15 85 M25 5 Q50 28 75 5 M25 95 Q50 72 75 95 M5 25 Q28 50 5 75 M95 25 Q72 50 95 75" opacity=".8"/>`};
+SH.crystal={w:100,h:88,svg:`<polygon class="c" points="50,0 100,88 0,88"/><polygon class="l" points="50,22 78,70 22,70" opacity=".7"/>`};
 /* ---------- THINGS (sizes in metres / square metres) ---------- */
 const L=(name,shape,dim,value,lab,m,extra={})=>Object.assign({kind:'len',name,shape,dim,value,lab,m},extra);
 const A=(name,shape,value,lab,extra={})=>Object.assign({kind:'area',name,shape,dim:'w',value,lab,m:'ground area'},extra);
@@ -900,10 +959,144 @@ Object.assign(TH,{
   fitzbeam:L('Edmund Fitzgerald','fitzbeam','h',22.9,'75 ft (23 m) wide','width (side to side)'),
   fitzdepth:L('Edmund Fitzgerald wreck','fitzdepth','h',161.5,'about 530 ft (162 m) down','depth below the surface')
 });
+Object.assign(TH,{
+  lviolet:L('Violet light','wave_violet','w',400e-9,'about 400 nm','wavelength'),
+  lred:L('Red light','wave_red','w',700e-9,'about 700 nm','wavelength'),
+  lir:L('infrared light from a TV remote','wave_ir','w',940e-9,'about 940 nm (invisible to us)','wavelength'),
+  xray:L('X-ray','wave_x','w',0.1e-9,'about 0.1 nm','wavelength'),
+  wifi:L('Wi-Fi signal','wave','w',0.125,'about 12.5 cm (2.4 GHz)','wavelength'),
+  microw:L('microwave oven waves','wave','w',0.122,'about 12.2 cm (2.45 GHz)','wavelength'),
+  fiveg:L('5G millimeter wave','wave','w',0.0107,'about 1.1 cm (28 GHz)','wavelength'),
+  fm:L('FM radio signal','wave','w',3.0,'about 3 m (100 MHz)','wavelength'),
+  am:L('AM radio signal','wave','w',300,'about 300 m (1000 kHz)','wavelength'),
+  phone:L('Smartphone','phone','h',0.147,'about 5.8 in (14.7 cm) tall','height'),
+  moai:L('Typical moai','moai','h',4.05,'about 13 ft (4 m)','height'),
+  paro:L('Paro','moai','h',9.8,'about 33 ft (9.8 m)','height'),
+  gigante:L('El Gigante','moai','h',21.6,'about 72 ft (21.6 m), never finished','height')
+});
+Object.assign(TH,{
+  pixel:L('Phone pixel','pixel','w',55e-6,'about 55 µm (on a screen with about 460 pixels per inch)','width',{approx:true}),
+  ps5:L('PlayStation 5','ps5','h',0.39,'about 15.4 in (39 cm) tall','height'),
+  starship:L('SpaceX Starship','starship','h',121,'about 397 ft (121 m)','height'),
+  hoop:L('Basketball hoop','hoop','h',3.048,'10 ft (3.05 m)','rim height'),
+  rim:L('Basketball rim','rim','w',0.457,'18 in (46 cm) across','width'),
+  court:L('NBA basketball court','court','w',28.65,'94 ft (28.65 m)','length'),
+  marathon:L('Marathon course','marathon','w',42195,'26.2 mi (42.2 km)','length'),
+  pool:L('Olympic swimming pool','pool','w',50,'50 m (164 ft)','length'),
+  mound:L('Pitcher\'s mound','mound','w',18.44,'60 ft 6 in (18.4 m) from home plate','distance from home plate'),
+  greatwhite:L('Great white shark','shark','w',6,'up to about 20 ft (6 m)','length',{approx:true}),
+  megalodon:L('Megalodon','shark','w',15,'about 50 ft (15 m), but estimates vary from 13 to 18 m','length',{approx:true}),
+  whaleshark:L('Whale shark','whaleshark','w',12,'about 40 ft (12 m)','length',{approx:true}),
+  gsquid:L('Giant squid','squid','w',12,'up to about 40 ft (12 m), tentacles included','length',{approx:true}),
+  megatooth:L('Megalodon tooth','megatooth','h',0.184,'7.25 in (18.4 cm)','height'),
+  dnalen:L('DNA from one cell','dnastretch','w',2.0,'about 6.6 ft (2 m)','stretched-out length'),
+  gut:L('Small intestine','gut','w',6.5,'about 20 ft (6 to 7 m)','stretched-out length',{approx:true}),
+  a440:L('sound wave of the note A (440 Hz)','wave','w',0.78,'about 78 cm','wavelength',{approx:true}),
+  bass:L('sound wave of a deep bass note (50 Hz)','wave','w',6.9,'about 6.9 m','wavelength',{approx:true}),
+  a20k:L('sound wave of the highest sound you can hear (20,000 Hz)','wave','w',0.017,'about 1.7 cm','wavelength',{approx:true}),
+  ward:L('Mr. Ward','ward','h',1.778,'5 ft 10 in (1.78 m)','height')
+});
+Object.assign(TH,{
+  amoeba:L('amoeba','amoeba','w',500e-6,'about 500 µm (half a millimeter)','width',{approx:true}),
+  paramecium:L('paramecium','paramecium','w',200e-6,'about 200 µm','length',{approx:true}),
+  tardigrade:L('tardigrade','tardigrade','w',0.5e-3,'about 0.5 mm','length',{approx:true}),
+  pollen:L('pollen grain','pollen','w',30e-6,'about 30 µm (grass pollen is 25 to 40 µm)','width',{approx:true}),
+  bacteriophage:L('bacteriophage','bacteriophage','h',200e-9,'about 200 nm tall','height',{approx:true}),
+  neuron:L('longest neuron in your body','neuron','w',1.0,'up to about 1 m (3 ft)','length',{approx:true}),
+  elephant:L('African elephant','elephant','h',3.3,'about 11 ft (3.3 m) at the shoulder','shoulder height',{approx:true}),
+  giraffe:L('giraffe','giraffe','h',5.5,'up to about 5.5 m (18 ft)','height',{approx:true}),
+  mammoth:L('woolly mammoth','mammoth','h',3.0,'about 10 ft (3 m) at the shoulder','shoulder height',{approx:true}),
+  humpback:L('humpback whale','humpback','w',13.5,'about 44 ft (13.5 m) on average','length',{approx:true}),
+  dolphin:L('bottlenose dolphin','dolphin','w',2.8,'about 9 ft (2.8 m), usually 2 to 4 m','length',{approx:true}),
+  komodo:L('Komodo dragon','komodo','w',3.0,'up to about 10 ft (3 m)','length',{approx:true}),
+  octopus:L('giant Pacific octopus','octopus','w',4.0,'about 13 ft (4 m) for a big one','arm span',{approx:true}),
+  penguin:L('emperor penguin','penguin','h',1.2,'about 4 ft (1.2 m)','height'),
+  trilobite:L('trilobite','trilobite','h',0.05,'about 2 in (5 cm), most are 2 to 7 cm','length',{approx:true}),
+  ankylosaurus:L('Ankylosaurus','ankylosaurus','w',6.5,'about 6 to 8 m (20 to 26 ft)','length',{approx:true}),
+  citigroup:L('Citigroup Center','citigroup','h',278.9,'915 ft (279 m)','height'),
+  colosseum:L('Colosseum','colosseum','w',189,'620 ft (189 m) long','length'),
+  goldengate:L('Golden Gate Bridge','goldengate','w',1280,'4,200 ft (1,280 m) main span','main span'),
+  guggenheim:L('Guggenheim Museum','guggenheim','w',39,'about 128 ft (39 m) across the top of the round part','width of the round part',{approx:true}),
+  pisa:L('Leaning Tower of Pisa','pisa','h',56.3,'about 185 ft (56 m)','height',{approx:true}),
+  spaceneedle:L('Space Needle','spaceneedle','h',184.4,'605 ft (184 m)','height'),
+  sphinx:L('Great Sphinx','sphinx','w',73,'240 ft (73 m) long','length'),
+  sydneyopera:L('Sydney Opera House','sydneyopera','w',183,'600 ft (183 m) long','length'),
+  tajmahal:L('Taj Mahal','tajmahal','h',73,'240 ft (73 m)','height'),
+  greatwall:L('Great Wall of China','greatwall','w',21196000,'13,171 mi (21,196 km) with all its branches','length',{approx:true}),
+  grandpiano:L('concert grand piano','grandpiano','w',2.74,'8 ft 11 in (2.74 m) long','length'),
+  lunarmodule:L('Apollo Lunar Module','lunarmodule','h',7.04,'23 ft (7.0 m) tall','height'),
+  perseverance:L('Perseverance rover','perseverance','w',3.0,'about 10 ft (3 m) long','length'),
+  voyager:L('Voyager spacecraft','voyager','w',3.7,'its dish is 12 ft (3.7 m) across','dish width'),
+  galaxy:L('Milky Way','galaxy','w',100000*9460700000000000.0,'about 100,000 light-years','diameter',{approx:true}),
+  galdist:L('Andromeda galaxy','galdist','w',2.5e6*9460700000000000.0,'about 2.5 million light-years away','distance from us',{approx:true})
+});
+Object.assign(TH,{
+  sandgrain:L('grain of sand','bennu','w',0.5e-3,'about 0.5 mm','width',{approx:true}),
+  comet:L('nucleus of Comet Tempel-Tuttle','phobos','w',3600,'about 2.2 mi (3.6 km) across','width'),
+  meteoralt:L('shooting star','alt','h',100000,'about 62 mi (100 km) up','burn-up height',{approx:true}),
+  issalt:L('International Space Station','alt','h',400000,'about 250 mi (400 km) up','orbit height',{approx:true}),
+  surveyorwalk:L('gap between the Apollo 12 lander and Surveyor 3','span','w',180,'about 600 ft (180 m)','width',{approx:true}),
+  beagle:L('HMS Beagle','beagle','w',27.5,'90 ft (27.5 m)','length'),
+  mayflower:L('Mayflower','beagle','w',30,'about 100 ft (30 m), estimates run 90 to 110 ft','length',{approx:true}),
+  tortoise:L('Galápagos tortoise','tortoise','w',1.2,'about 4 ft (1.2 m), some reach 6 ft','shell length',{approx:true}),
+  finch:L('medium ground finch (one of Darwin\'s finches)','finch','w',0.125,'about 5 in (12.5 cm)','length'),
+  basepath:L('baseball diamond','span','w',27.43,'90 ft (27.4 m)','distance between bases'),
+  paraderoute:L('Macy\'s parade route','span','w',4023,'2.5 mi (4 km)','length'),
+  lrv:L('Lunar Roving Vehicle','lrv','w',3.1,'about 10 ft (3.1 m) long','length'),
+  a17drive:L('path of the Apollo 17 rover','span','w',35700,'about 22 mi (35.7 km)','total distance'),
+  phaethon:L('asteroid 3200 Phaethon','bennu','w',5500,'about 3.4 mi (5.5 km), estimates run 5 to 6 km','width',{approx:true}),
+  wrightflyer:L('Wright Flyer','wrightflyer','w',12.3,'40 ft 4 in (12.3 m)','wingspan'),
+  firstflight:L('first Wright brothers flight','span','w',36.6,'120 ft (37 m)','distance flown'),
+  longflight:L('longest Wright brothers flight of the day','span','w',260,'852 ft (260 m)','distance flown'),
+  sarsen:L('Stonehenge sarsen stone','sarsen','h',4.0,'about 13 ft (4 m) tall','height'),
+  stonecircle:L('Stonehenge sarsen circle','stonecircle','w',30,'about 100 ft (30 m) across','width across',{approx:true}),
+  ball:L('Times Square New Year\'s Eve ball','ball','w',3.66,'12 ft (3.7 m) across','width'),
+  ball1907:L('first Times Square ball (1907)','ball','w',1.52,'5 ft (1.5 m) across','width'),
+  balldrop:L('Times Square ball\'s drop','alt','h',23.5,'77 ft (23.5 m)','distance',{}),
+  crystal:L('crystal triangle on the Times Square ball','crystal','w',0.13,'about 5 in (13 cm) on each side','side length',{approx:true})
+});
 Object.keys(TH).forEach(k=>{TH[k].key=k});
+/* ---------- neon artwork: sprites in the img folder replace the drawn shapes. A shape only switches once its file has loaded,
+   so if a file is missing the older drawn shape is simply kept. ---------- */
+const IMGM={"amoeba":{"iw":640,"ih":542,"mx":25.9,"my":25.9,"mw":586.8,"mh":490.0,"t":1,"a":0,"ax":4,"ay":1300},"animalcell":{"iw":428,"ih":427,"mx":23,"my":22,"mw":382,"mh":383,"t":1,"a":0,"ax":443,"ay":1850},"ankylosaurus":{"iw":481,"ih":249,"mx":17,"my":15,"mw":448,"mh":216,"t":1,"a":2,"ax":1466,"ay":811},"archaeopteryx":{"iw":453,"ih":419,"mx":19,"my":20,"mw":416,"mh":380,"t":1,"a":2,"ax":859,"ay":4},"arthropleura":{"iw":513,"ih":216,"mx":13,"my":15,"mw":488,"mh":187,"t":1,"a":2,"ax":1080,"ay":1088},"atom":{"iw":416,"ih":417,"mx":23,"my":24,"mw":370,"mh":370,"t":1,"a":0,"ax":879,"ay":1850},"bacteriophage":{"iw":351,"ih":441,"mx":17,"my":18,"mw":318,"mh":406,"t":1,"a":0,"ax":1300,"ay":1300},"basketball":{"iw":472,"ih":472,"mx":30,"my":30,"mw":412,"mh":411,"t":1,"a":1,"ax":332,"ay":4},"bbspan":{"iw":475,"ih":316,"mx":143,"my":22,"mw":240,"mh":270,"t":1,"a":4,"ax":477,"ay":468},"bbtower":{"iw":482,"ih":411,"mx":13,"my":21,"mw":456,"mh":375,"t":1,"a":3,"ax":622,"ay":957},"bennu":{"iw":433,"ih":423,"mx":32,"my":30,"mw":371,"mh":363,"t":1,"a":6,"ax":1323,"ay":947},"bigben":{"iw":157,"ih":467,"mx":32,"my":11,"mw":95,"mh":423,"t":1,"a":5,"ax":801,"ay":4},"bird":{"iw":591,"ih":241,"mx":17,"my":21,"mw":557,"mh":199,"t":1,"a":2,"ax":4,"ay":1088},"brachiosaurus":{"iw":425,"ih":445,"mx":18,"my":17,"mw":390,"mh":410,"t":1,"a":2,"ax":426,"ay":4},"burj":{"iw":191,"ih":478,"mx":22,"my":11,"mw":144,"mh":433,"t":1,"a":5,"ax":253,"ay":4},"bus":{"iw":477,"ih":210,"mx":21,"my":22,"mw":436,"mh":167,"t":1,"a":4,"ax":472,"ay":854},"ceres":{"iw":402,"ih":404,"mx":29,"my":30,"mw":343,"mh":344,"t":1,"a":6,"ax":858,"ay":1384},"cessna":{"iw":465,"ih":378,"mx":23,"my":20,"mw":420,"mh":339,"t":1,"a":4,"ax":4,"ay":468},"cheek":{"iw":617,"ih":640,"mx":32.0,"my":32.0,"mw":554.3,"mh":578.4,"t":1,"a":0,"ax":4,"ay":4},"chicxulub":{"iw":347,"ih":339,"mx":27,"my":26,"mw":294,"mh":286,"t":1,"a":6,"ax":477,"ay":2212},"chloro":{"iw":446,"ih":286,"mx":24,"my":23,"mw":401,"mh":240,"t":1,"a":0,"ax":652,"ay":2706},"chrysler":{"iw":207,"ih":480,"mx":14,"my":9,"mw":180,"mh":453,"t":1,"a":3,"ax":240,"ay":4},"citigroup":{"iw":203,"ih":468,"mx":18,"my":17,"mw":168,"mh":432,"t":1,"a":3,"ax":1817,"ay":4},"colosseum":{"iw":466,"ih":356,"mx":18,"my":18,"mw":429,"mh":317,"t":1,"a":5,"ax":1336,"ay":4},"cptower":{"iw":115,"ih":474,"mx":30,"my":24,"mw":56,"mh":420,"t":1,"a":3,"ax":1198,"ay":4},"diplodocus":{"iw":469,"ih":222,"mx":18,"my":19,"mw":436,"mh":184,"t":1,"a":2,"ax":603,"ay":1088},"dna":{"iw":204,"ih":416,"mx":23,"my":21,"mw":158,"mh":375,"t":1,"a":0,"ax":1727,"ay":1850},"dolphin":{"iw":640,"ih":286,"mx":17.9,"my":18.9,"mw":603.3,"mh":247.1,"t":1,"a":1,"ax":4,"ay":957},"dragonfly":{"iw":453,"ih":323,"mx":19,"my":21,"mw":416,"mh":285,"t":1,"a":2,"ax":500,"ay":465},"earth":{"iw":423,"ih":416,"mx":15,"my":20,"mw":394,"mh":375,"t":1,"a":6,"ax":4,"ay":1384},"ecoli":{"iw":640,"ih":245,"mx":14.3,"my":15.1,"mw":610.2,"mh":215.2,"t":1,"a":0,"ax":4,"ay":3061},"egg":{"iw":639,"ih":640,"mx":24.6,"my":26.0,"mw":589.4,"mh":588.7,"t":1,"a":0,"ax":629,"ay":4},"eiffel":{"iw":362,"ih":459,"mx":21,"my":11,"mw":320,"mh":422,"t":1,"a":5,"ax":966,"ay":4},"elephant":{"iw":478,"ih":361,"mx":24,"my":26,"mw":434,"mh":309,"t":1,"a":1,"ax":445,"ay":492},"empire":{"iw":183,"ih":475,"mx":14,"my":72.4,"mw":156,"mh":389.6,"t":1,"a":3,"ax":899,"ay":4},"everest":{"iw":461,"ih":287,"mx":22,"my":22,"mw":418,"mh":236,"t":1,"a":5,"ax":493,"ay":843},"ferry":{"iw":460,"ih":214,"mx":17,"my":12,"mw":426,"mh":182,"t":1,"a":4,"ax":4,"ay":854},"fitz":{"iw":640,"ih":131,"mx":13.9,"my":8.6,"mw":616.2,"mh":105.9,"t":1,"a":4,"ax":980,"ay":1076},"fitzbeam":{"iw":640,"ih":103,"mx":14.1,"my":16.8,"mw":614.5,"mh":70.5,"t":1,"a":4,"ax":4,"ay":1266},"fitzdepth":{"iw":423,"ih":392,"mx":26,"my":18,"mw":370,"mh":347,"t":1,"a":4,"ax":1412,"ay":4},"flatiron":{"iw":228,"ih":492,"mx":19,"my":18,"mw":192,"mh":454,"t":1,"a":3,"ax":4,"ay":4},"football":{"iw":452,"ih":245,"mx":13,"my":21,"mw":426,"mh":202,"t":1,"a":4,"ax":1432,"ay":468},"galaxy":{"iw":566,"ih":352,"mx":15,"my":22,"mw":530,"mh":309,"t":1,"a":6,"ax":1217,"ay":1808},"ganymede":{"iw":430,"ih":430,"mx":27,"my":28,"mw":375,"mh":375,"t":1,"a":6,"ax":1353,"ay":495},"gastornis":{"iw":414,"ih":453,"mx":21,"my":21,"mw":372,"mh":414,"t":1,"a":2,"ax":4,"ay":4},"giraffe":{"iw":320,"ih":480,"mx":25,"my":23,"mw":274,"mh":432,"t":1,"a":1,"ax":4,"ay":4},"goldengate":{"iw":478,"ih":418,"mx":146,"my":19,"mw":256,"mh":375,"t":1,"a":4,"ax":926,"ay":4},"grandpiano":{"iw":461,"ih":456,"mx":25,"my":25,"mw":412,"mh":408,"t":1,"a":4,"ax":4,"ay":4},"greatwall":{"iw":640,"ih":330,"mx":16.4,"my":20.2,"mw":610.1,"mh":293.0,"t":1,"a":5,"ax":953,"ay":495},"guggenheim":{"iw":640,"ih":441,"mx":158.3,"my":18.2,"mw":415.5,"mh":405.8,"t":1,"a":3,"ax":445,"ay":504},"hair":{"iw":416,"ih":417,"mx":21,"my":22,"mw":374,"mh":373,"t":1,"a":0,"ax":1303,"ay":1850},"hubble":{"iw":476,"ih":300,"mx":23,"my":24,"mw":431,"mh":255,"t":1,"a":6,"ax":4,"ay":2560},"humpback":{"iw":489,"ih":268,"mx":20,"my":23,"mw":447,"mh":224,"t":1,"a":1,"ax":652,"ay":957},"icon":{"iw":640,"ih":360,"mx":0,"my":0,"mw":640,"mh":360,"t":0},"intrepid":{"iw":495,"ih":174,"mx":16,"my":15,"mw":464,"mh":138,"t":1,"a":4,"ax":477,"ay":1076},"iss":{"iw":467,"ih":330,"mx":30,"my":31,"mw":408,"mh":270,"t":1,"a":6,"ax":832,"ay":2212},"jet747":{"iw":445,"ih":445,"mx":20,"my":18,"mw":406,"mh":409,"t":1,"a":4,"ax":473,"ay":4},"jupiter":{"iw":424,"ih":424,"mx":23,"my":22,"mw":380,"mh":380,"t":1,"a":6,"ax":891,"ay":947},"jwst":{"iw":439,"ih":465,"mx":27,"my":28,"mw":386,"mh":406,"t":1,"a":6,"ax":141,"ay":4},"komodo":{"iw":486,"ih":237,"mx":21,"my":23,"mw":448,"mh":191,"t":1,"a":1,"ax":1149,"ay":957},"logo":{"iw":426,"ih":275,"mx":0,"my":0,"mw":426,"mh":275,"t":0},"lunarmodule":{"iw":456,"ih":444,"mx":16,"my":19,"mw":424,"mh":405,"t":1,"a":6,"ax":4,"ay":495},"mammoth":{"iw":479,"ih":349,"mx":18,"my":17,"mw":443,"mh":314,"t":1,"a":1,"ax":931,"ay":492},"mars":{"iw":453,"ih":454,"mx":28,"my":28,"mw":398,"mh":398,"t":1,"a":6,"ax":588,"ay":4},"medal-bronze":{"iw":480,"ih":480,"mx":0,"my":0,"mw":480,"mh":480,"t":0},"medal-gold":{"iw":480,"ih":480,"mx":0,"my":0,"mw":480,"mh":480,"t":0},"medal-rookie":{"iw":480,"ih":480,"mx":0,"my":0,"mw":480,"mh":480,"t":0},"medal-silver":{"iw":480,"ih":480,"mx":0,"my":0,"mw":480,"mh":480,"t":0},"mercury":{"iw":430,"ih":429,"mx":28,"my":28,"mw":374,"mh":374,"t":1,"a":6,"ax":4,"ay":947},"mito":{"iw":640,"ih":347,"mx":12.4,"my":11.9,"mw":615.2,"mh":323.4,"t":1,"a":0,"ax":4,"ay":2706},"moon":{"iw":415,"ih":415,"mx":22,"my":22,"mw":372,"mh":372,"t":1,"a":6,"ax":435,"ay":1384},"neptune":{"iw":430,"ih":431,"mx":28,"my":29,"mw":374,"mh":374,"t":1,"a":6,"ax":915,"ay":495},"neuron":{"iw":633,"ih":355,"mx":16,"my":13,"mw":600,"mh":329,"t":1,"a":0,"ax":1075,"ay":2292},"neutronstar":{"iw":354,"ih":396,"mx":122.5,"my":144.5,"mw":108.0,"mh":108.0,"t":1,"a":6,"ax":495,"ay":1808},"nucleus":{"iw":640,"ih":640,"mx":21.7,"my":21.7,"mw":596.7,"mh":596.0,"t":1,"a":0,"ax":4,"ay":652},"octopus":{"iw":458,"ih":458,"mx":22,"my":24,"mw":414,"mh":410,"t":1,"a":1,"ax":1412,"ay":4},"onion":{"iw":417,"ih":266,"mx":24,"my":23,"mw":370,"mh":220,"t":1,"a":0,"ax":1106,"ay":2706},"owtc":{"iw":100,"ih":474,"mx":11,"my":9,"mw":79,"mh":453,"t":1,"a":3,"ax":1090,"ay":4},"parachute":{"iw":253,"ih":470,"mx":23,"my":17,"mw":208,"mh":420,"t":1,"a":3,"ax":1321,"ay":4},"paramecium":{"iw":568,"ih":235,"mx":18,"my":20,"mw":530,"mh":194,"t":1,"a":0,"ax":652,"ay":3061},"penguin":{"iw":268,"ih":457,"mx":20,"my":23,"mw":230,"mh":411,"t":1,"a":1,"ax":4,"ay":492},"perseverance":{"iw":465,"ih":340,"mx":20,"my":18,"mw":376,"mh":303,"t":1,"a":6,"ax":4,"ay":2212},"person":{"iw":234,"ih":465,"mx":30,"my":28,"mw":174,"mh":410,"t":1,"a":1,"ax":1170,"ay":4},"phobos":{"iw":441,"ih":426,"mx":32,"my":32,"mw":377,"mh":361,"t":1,"a":6,"ax":442,"ay":947},"pisa":{"iw":241,"ih":483,"mx":17,"my":26,"mw":201,"mh":432,"t":1,"a":5,"ax":4,"ay":4},"plantcell":{"iw":431,"ih":434,"mx":23,"my":24,"mw":386,"mh":386,"t":1,"a":0,"ax":4,"ay":1850},"pluto":{"iw":451,"ih":450,"mx":28,"my":27,"mw":396,"mh":396,"t":1,"a":6,"ax":1510,"ay":4},"pollen":{"iw":638,"ih":640,"mx":20.2,"my":20.9,"mw":599.7,"mh":598.9,"t":1,"a":0,"ax":652,"ay":652},"pteranodon":{"iw":484,"ih":251,"mx":13,"my":11,"mw":459,"mh":227,"t":1,"a":2,"ax":974,"ay":811},"pyramid":{"iw":456,"ih":340,"mx":19,"my":19,"mw":418,"mh":296,"t":1,"a":5,"ax":4,"ay":495},"quetzalcoatlus":{"iw":488,"ih":338,"mx":13,"my":12,"mw":460,"mh":312,"t":1,"a":2,"ax":4,"ay":465},"rbc":{"iw":640,"ih":510,"mx":20.3,"my":22.7,"mw":598.8,"mh":466.9,"t":1,"a":0,"ax":652,"ay":1300},"redwood":{"iw":157,"ih":448,"mx":17,"my":16,"mw":124,"mh":410,"t":1,"a":1,"ax":280,"ay":492},"ribo":{"iw":415,"ih":406,"mx":24,"my":23,"mw":369,"mh":362,"t":1,"a":0,"ax":4,"ay":2292},"rock30":{"iw":221,"ih":416,"mx":21,"my":21,"mw":180,"mh":371,"t":1,"a":3,"ax":4,"ay":957},"saturn":{"iw":483,"ih":396,"mx":116.9,"my":70.9,"mw":251.2,"mh":251.2,"t":1,"a":6,"ax":4,"ay":1808},"saturnv":{"iw":129,"ih":483,"mx":18,"my":13,"mw":94,"mh":448,"t":1,"a":6,"ax":4,"ay":4},"shuttle":{"iw":456,"ih":303,"mx":22,"my":22,"mw":417,"mh":258,"t":1,"a":6,"ax":1307,"ay":2212},"siriusb":{"iw":352,"ih":353,"mx":26,"my":27,"mw":300,"mh":300,"t":1,"a":6,"ax":857,"ay":1808},"spaceneedle":{"iw":191,"ih":474,"mx":18,"my":17,"mw":154,"mh":436,"t":1,"a":5,"ax":452,"ay":4},"sphinx":{"iw":481,"ih":302,"mx":23,"my":25,"mw":435,"mh":252,"t":1,"a":5,"ax":4,"ay":843},"spinosaurus":{"iw":489,"ih":284,"mx":14,"my":14,"mw":460,"mh":254,"t":1,"a":2,"ax":1436,"ay":465},"statue":{"iw":194,"ih":476,"mx":13,"my":10,"mw":169,"mh":454,"t":1,"a":3,"ax":697,"ay":4},"statueped":{"iw":234,"ih":477,"mx":8,"my":11,"mw":216,"mh":453,"t":1,"a":3,"ax":455,"ay":4},"stegosaurus":{"iw":467,"ih":293,"mx":15,"my":15,"mw":436,"mh":261,"t":1,"a":2,"ax":961,"ay":465},"subwaycar":{"iw":465,"ih":182,"mx":18,"my":21,"mw":429,"mh":142,"t":1,"a":4,"ax":4,"ay":1076},"sun":{"iw":439,"ih":436,"mx":26,"my":24,"mw":389,"mh":386,"t":1,"a":6,"ax":468,"ay":495},"sydneyopera":{"iw":494,"ih":225,"mx":15,"my":17,"mw":464,"mh":189,"t":1,"a":5,"ax":962,"ay":843},"tajmahal":{"iw":477,"ih":336,"mx":19,"my":11,"mw":439,"mh":306,"t":1,"a":5,"ax":468,"ay":495},"tardigrade":{"iw":640,"ih":380,"mx":16.4,"my":18.1,"mw":607.1,"mh":347.4,"t":1,"a":0,"ax":427,"ay":2292},"taxi":{"iw":462,"ih":200,"mx":19,"my":20,"mw":425,"mh":160,"t":1,"a":4,"ax":1447,"ay":854},"timewarner":{"iw":381,"ih":415,"mx":23,"my":20,"mw":336,"mh":371,"t":1,"a":3,"ax":233,"ay":957},"titanic":{"iw":482,"ih":205,"mx":22,"my":23,"mw":436,"mh":156,"t":1,"a":4,"ax":957,"ay":854},"trex":{"iw":460,"ih":362,"mx":26,"my":31,"mw":407,"mh":306,"t":1,"a":2,"ax":1320,"ay":4},"triceratops":{"iw":463,"ih":264,"mx":14,"my":16,"mw":434,"mh":230,"t":1,"a":2,"ax":503,"ay":811},"trilobite":{"iw":350,"ih":465,"mx":19,"my":18,"mw":314,"mh":430,"t":1,"a":1,"ax":812,"ay":4},"unisphere":{"iw":378,"ih":416,"mx":20,"my":24,"mw":337,"mh":370,"t":1,"a":3,"ax":1489,"ay":504},"velociraptor":{"iw":491,"ih":269,"mx":15,"my":15,"mw":461,"mh":240,"t":1,"a":2,"ax":4,"ay":811},"venus":{"iw":453,"ih":452,"mx":28,"my":27,"mw":398,"mh":398,"t":1,"a":6,"ax":1049,"ay":4},"verrazzano":{"iw":464,"ih":253,"mx":104,"my":19,"mw":274,"mh":214,"t":1,"a":4,"ax":960,"ay":468},"vessel":{"iw":433,"ih":445,"mx":20,"my":17,"mw":395,"mh":408,"t":1,"a":3,"ax":4,"ay":504},"virus":{"iw":640,"ih":639,"mx":19.6,"my":20.3,"mw":600.9,"mh":600.2,"t":1,"a":0,"ax":1298,"ay":652},"voyager":{"iw":451,"ih":402,"mx":73.5,"my":21.5,"mw":220.0,"mh":220.0,"t":1,"a":6,"ax":1268,"ay":1384},"washington":{"iw":142,"ih":470,"mx":31,"my":18,"mw":82,"mh":423,"t":1,"a":5,"ax":651,"ay":4},"whale":{"iw":458,"ih":184,"mx":20,"my":19,"mw":420,"mh":144,"t":1,"a":1,"ax":4,"ay":1251},"wonderwheel":{"iw":388,"ih":421,"mx":19,"my":23,"mw":350,"mh":375,"t":1,"a":3,"ax":1093,"ay":504},"woolworth":{"iw":227,"ih":468,"mx":30,"my":16,"mw":168,"mh":422,"t":1,"a":3,"ax":1582,"ay":4},"yeast":{"iw":639,"ih":640,"mx":37.1,"my":38.8,"mw":564.1,"mh":563.3,"t":1,"a":0,"ax":1276,"ay":4}};
+const IMGATL={"0":[2048,3310],"1":[2048,1439],"2":[2048,1333],"3":[2048,1377],"4":[2048,1373],"5":[2048,1149],"6":[2048,2864]};
+/* a plain drawn stand-in for every new thing, used only if its sprite cannot load */
+['amoeba','paramecium','tardigrade','pollen','bacteriophage','neuron','elephant','giraffe','mammoth','humpback','dolphin','komodo','octopus','penguin','trilobite','ankylosaurus','citigroup','colosseum','goldengate','guggenheim','pisa','spaceneedle','sphinx','sydneyopera','tajmahal','greatwall','grandpiano','lunarmodule','perseverance','voyager','galaxy'].forEach(k=>{
+  if(SH[k]||!IMGM[k])return;const m=IMGM[k];
+  SH[k]={w:m.mw,h:m.mh,svg:`<rect class="c" x="0" y="0" width="${m.mw}" height="${m.mh}" rx="${Math.min(m.mw,m.mh)*0.18}"/><rect class="l" x="${m.mw*0.12}" y="${m.mh*0.12}" width="${m.mw*0.76}" height="${m.mh*0.76}" rx="${Math.min(m.mw,m.mh)*0.1}" opacity=".55"/>`};
+});
+SH.galdist={w:100,h:14,svg:`<circle class="c" cx="7" cy="7" r="7"/><circle class="c" cx="93" cy="7" r="7"/><path class="sl" stroke-width="1.6" stroke-dasharray="4 3" d="M16 7 H84"/>`};
+const IMGSHAPE={};   /* shape id -> sprite name */
+Object.keys(IMGM).forEach(k=>{
+  if(k==='logo'||k==='icon'||k.indexOf('medal')===0)return;
+  if(SH[k])IMGSHAPE[k]=k;
+  Object.values(TH).forEach(t=>{if(t.key===k&&t.shape&&SH[t.shape]&&!IMGSHAPE[t.shape])IMGSHAPE[t.shape]=k});
+});
+const IMG_READY={};
+/* sprites live on shared sheets (img/atlas-N.png) so the whole site is only a handful of files; colour art stays a plain file */
+const imgFile=k=>IMGM[k].a!==undefined?'img/atlas-'+IMGM[k].a+'.png':'img/'+k+'.png';
+function imgShape(k){
+  const m=IMGM[k];
+  if(m.a===undefined)return {w:m.mw,h:m.mh,img:true,svg:`<image href="${imgFile(k)}" x="${-m.mx}" y="${-m.my}" width="${m.iw}" height="${m.ih}" preserveAspectRatio="none"/>`};
+  const d=IMGATL[m.a];
+  return {w:m.mw,h:m.mh,img:true,svg:`<svg x="${-m.mx}" y="${-m.my}" width="${m.iw}" height="${m.ih}" viewBox="${m.ax} ${m.ay} ${m.iw} ${m.ih}" preserveAspectRatio="none"><image href="${imgFile(k)}" x="0" y="0" width="${d[0]}" height="${d[1]}" preserveAspectRatio="none"/></svg>`};
+}
+function preloadImg(k){
+  const f=imgFile(k);
+  if(f in IMG_READY)return Promise.resolve(IMG_READY[f]);
+  return new Promise(res=>{const im=new Image();im.onload=()=>{IMG_READY[f]=true;res(true)};im.onerror=()=>{IMG_READY[f]=false;res(false)};im.src=f});
+}
+async function ensureImgs(rounds){
+  const need=new Set();
+  rounds.forEach(c=>[TH[c.ref],TH[c.tgt]].forEach(t=>{const k=IMGSHAPE[t.shape];if(k)need.add(k)}));
+  await Promise.race([Promise.all([...need].map(preloadImg)),new Promise(r=>setTimeout(r,6000))]);
+  rounds.forEach(c=>[TH[c.ref],TH[c.tgt]].forEach(t=>{const k=IMGSHAPE[t.shape];if(k&&IMG_READY[imgFile(k)]===true&&!SH[t.shape].img)SH[t.shape]=imgShape(k)}));
+}
+
 const PROPER=new Set(['collegiate','collegiate_fp','statue','eiffel','pyramid','washington','bigben','burj','empire','boeing','centralpark','pyramidfp','iss','earth','moon','jupiter','sun','pluto','murphy','ecoli','owtc','chrysler','flatiron','vessel','bbtower','wonderwheel','bbspan','verrazzano','ferry','intrepid','manhattan','manhattan_len','brooklyn','queens','bronx','statenisland','nyc','prospect','jfk','washsq','governors','mars','venus','mercury','saturn','neptune','ganymede','ceres','saturnv','hubble','jwst','bennu','phobos','everest','shuttle','asia','africa','northamerica','southamerica','antarctica','europe','australia','russia','canada','usa','china','brazil','india','mexico','egypt','france','italy','japan','uk','british','mongol','qing','umayyad','han','persian','ottoman','roman','mughal','inca','aztec']);
 const BARE=new Set(['owtc','bigben','earth','jupiter','pluto','murphy','centralpark','manhattan','manhattan_len','brooklyn','queens','bronx','statenisland','nyc','prospect','jfk','washsq','governors','mars','venus','mercury','saturn','neptune','ganymede','ceres','phobos','bennu','everest','shuttle','intrepid','asia','africa','northamerica','southamerica','antarctica','europe','australia','russia','canada','china','brazil','india','mexico','egypt','france','italy','japan']);
-['fitz','titanic','fitzbeam','fitzdepth'].forEach(k=>PROPER.add(k));
+['fitz','titanic','fitzbeam','fitzdepth','lir','xray','wifi','fiveg','fm','am','paro','gigante','ps5','starship','court','pool','megalodon','dnalen','a440','bass','a20k','ward','elephant','komodo','octopus','ankylosaurus','citigroup','colosseum','goldengate','guggenheim','pisa','spaceneedle','sphinx','sydneyopera','tajmahal','greatwall','lunarmodule','perseverance','voyager','galaxy','galdist','comet','issalt','surveyorwalk','beagle','mayflower','tortoise','finch','paraderoute','lrv','a17drive','phaethon','wrightflyer','firstflight','longflight','sarsen','stonecircle','ball','ball1907','balldrop','crystal'].forEach(k=>PROPER.add(k));
+['paro','gigante','megalodon','ward','ankylosaurus','tajmahal','beagle'].forEach(k=>BARE.add(k));
 ['statueped','unisphere','timewarner','rock30','woolworth','cptower','parachute','cleopatra'].forEach(k=>PROPER.add(k));
 ['rock30','cptower','cleopatra'].forEach(k=>BARE.add(k));
 ['trex','triceratops','stegosaurus','brachiosaurus','diplodocus','argentinosaurus','spinosaurus','velociraptor','compsognathus','quetzalcoatlus','pteranodon','argentavis','archaeopteryx','gastornis','meganeura','arthropleura','cessna','jet747','dna','arcturus','aldebaran','siriusb','earthmoon'].forEach(k=>PROPER.add(k));
@@ -924,6 +1117,10 @@ const DESC={
   vessel:'a climbable sculpture',intrepid:'an aircraft carrier museum',jfk:'an airport in Queens',governors:'an island park in New York Harbor',prospect:'a park in Brooklyn',washsq:'a park in Greenwich Village',flatiron:'a triangle-shaped skyscraper',
   burj:'the tallest building in the world',bigben:'the clock tower in London',washington:'a stone obelisk in Washington, D.C.',eiffel:'the iron tower in Paris',boeing:'the largest building in the world by volume',
   unisphere:'a giant steel globe in Queens',timewarner:'twin towers at Columbus Circle',rock30:'the NBC tower at Rockefeller Center',woolworth:'a Gothic skyscraper downtown',cptower:'the tallest apartment building in the world',parachute:'an old World\'s Fair ride at Coney Island',cleopatra:'an ancient Egyptian obelisk in Central Park',
+  lviolet:'one full wave, crest to crest',lred:'one full wave, crest to crest',lir:'light just past red that our eyes cannot see',xray:'a wave about as short as an atom is wide',wifi:'the radio waves your Wi-Fi uses',microw:'the waves that heat your food',fiveg:'the fast, short-range kind of 5G',fm:'the radio waves that carry FM stations',am:'the radio waves that carry AM stations',moai:'a stone head statue from Easter Island',paro:'the tallest moai ever raised',gigante:'a giant moai still attached to the quarry rock',
+  pixel:'one dot on a sharp phone screen',ps5:'standing up, without its stand',starship:'the whole rocket, booster and ship',hoop:'how high the rim is above the floor',rim:'the ring the ball goes through',court:'the length of a pro court',marathon:'the full race distance',pool:'the length of the pool',mound:'the distance from home plate to the mound',megalodon:'the giant prehistoric shark',greatwhite:'a very big adult',whaleshark:'the biggest fish alive',gsquid:'a giant deep-sea squid',megatooth:'the biggest one ever found',dnalen:'all 46 chromosomes unwound and laid end to end',gut:'where most of your digestion happens',a440:'the tuning note orchestras use',bass:'a very low bass note',a20k:'the top of human hearing',ward:'your teacher',
+  amoeba:'a shape-shifting single cell',paramecium:'a slipper-shaped pond cell',tardigrade:'the microscopic water bear',pollen:'the dust from a flower',bacteriophage:'a virus that attacks bacteria',neuron:'a nerve cell running from your spine to your foot',elephant:'the biggest land animal',giraffe:'the tallest land animal',mammoth:'an Ice Age relative of elephants',humpback:'a whale known for its songs',dolphin:'a clever ocean mammal',komodo:'the biggest lizard alive',octopus:'a soft-bodied animal with eight arms',penguin:'the biggest penguin',trilobite:'an ancient sea creature that left fossils',ankylosaurus:'an armored dinosaur with a club tail',citigroup:'the Manhattan skyscraper with the slanted top',colosseum:'the giant stadium of ancient Rome',goldengate:'the red suspension bridge in San Francisco',guggenheim:'the spiral museum on Fifth Avenue',pisa:'the famous tower that leans',spaceneedle:'the tower in Seattle',sphinx:'the giant statue with a lion body',sydneyopera:'the sail-roofed building in Australia',tajmahal:'the white marble tomb in India',greatwall:'the long wall across northern China',grandpiano:'the big piano used on concert stages',lunarmodule:'the spacecraft that landed on the Moon',perseverance:'NASA\'s rover on Mars',voyager:'the probe now in interstellar space',galaxy:'our home galaxy',galdist:'our nearest big neighbor, so you are sizing how far away it is',
+  sandgrain:'a speck of sand',comet:'the icy core behind the Leonid meteors',meteoralt:'how high up a meteor burns away',issalt:'how high it orbits above Earth',surveyorwalk:'a probe sent to the Moon two years earlier',beagle:'the ship that carried Darwin around the world',mayflower:'the ship of the Pilgrims',tortoise:'a giant tortoise Darwin saw',finch:'a small bird Darwin studied',basepath:'from one base to the next',paraderoute:'from Central Park West to Herald Square',lrv:'the Moon buggy',a17drive:'all the driving over three moonwalks',phaethon:'the rocky parent of the Geminid meteors',wrightflyer:'the first airplane',firstflight:'Orville Wright, 12 seconds in the air',longflight:'Wilbur Wright, 59 seconds in the air',sarsen:'one of the big upright stones',stonecircle:'the ring of big stones',ball:'the crystal geodesic sphere',ball1907:'the very first one',balldrop:'how far it slides down the pole in 60 seconds',crystal:'one of the 2,688 pieces of crystal',
   fitzbeam:'her width, seen from above',fitzdepth:'how deep it lies in Lake Superior',fitz:'a Great Lakes freighter that sank in 1975',titanic:'the ocean liner that sank in 1912',
   murphy:'our 15 lb Shih Tzu'
 };
@@ -1133,9 +1330,214 @@ const FULL_DAYS={
     ['bus','fitzbeam','The Edmund Fitzgerald was 75 feet wide, a little less than 2 school buses long. She was built to be just small enough to fit the locks of the St. Lawrence Seaway.'],
     ['statueped','fitzdepth','The wreck lies in about 530 feet of water in Lake Superior, about 1.7 times as deep as the Statue of Liberty is tall with her stone base.'],
     ['fitz','titanic','The Titanic was about 21% longer than the Edmund Fitzgerald. Some people called the Fitz the "Titanic of the Great Lakes." Today we remember the 29 crew members.']
+  ],
+  '2026-11-17':[
+    ['hair','sandgrain','A grain of sand is about half a millimeter across, about 7 human hairs wide. Most of the meteors you can see are made by specks about this small.'],
+    ['bennu','comet','The Leonids come from Comet Tempel-Tuttle, whose icy nucleus is only about 3.6 kilometers across, about 7 times as wide as the asteroid Bennu.'],
+    ['manhattan_len','comet','Comet Tempel-Tuttle\'s nucleus is about 3.6 kilometers across, about one sixth the length of Manhattan.'],
+    ['everest','meteoralt','Leonid meteors burn up more than 100 kilometers above the ground, over 11 times the height of Mount Everest.'],
+    ['meteoralt','issalt','The International Space Station orbits about 400 kilometers up, about 4 times higher than the height where meteors burn up.']
+  ],
+  '2026-11-19':[
+    ['person','lunarmodule','On November 19, 1969, Apollo 12 landed on the Moon. Its Lunar Module stood about 7 meters tall, four times as tall as an adult.'],
+    ['bus','saturnv','The Saturn V rocket that launched Apollo 12 was about 111 meters tall, more than 9 school buses end to end. Lightning struck it twice just after liftoff.'],
+    ['earth','earthmoon','The Moon is about 30 Earths away. That is the trip the Apollo crews made.'],
+    ['football_len','surveyorwalk','Apollo 12 landed about 180 meters from Surveyor 3, a probe sent in 1967. That is about 1.6 football fields. The astronauts walked over to visit it.'],
+    ['earth','moon','The Moon is a little more than a quarter as wide as Earth.']
+  ],
+  '2026-11-24':[
+    ['bus','beagle','On November 24, 1859, Charles Darwin published On the Origin of Species. The ship that carried him around the world, HMS Beagle, was only about 27.5 meters long, about 2.3 school buses.'],
+    ['subwaycar','beagle','HMS Beagle was 90 feet long, only about one and a half subway cars. Darwin spent nearly five years on board.'],
+    ['whale','beagle','HMS Beagle, at 90 feet, was almost as long as a blue whale, which is about 98 feet.'],
+    ['murphy','tortoise','A big Galápagos tortoise is about 1.2 meters long or more, about 2.4 times as long as Murphy. Darwin noticed that their shells were different on different islands.'],
+    ['phone','finch','A medium ground finch, one of Darwin\'s finches, is only about 12.5 centimeters long, a bit shorter than a smartphone is tall.']
+  ],
+  '2026-11-26':[
+    ['bus','mayflower','Happy Thanksgiving! The Mayflower was only about 100 feet (30 meters) long, about 2.5 school buses, yet it carried about 100 passengers in 1620.'],
+    ['subwaycar','mayflower','Historians estimate the Mayflower was 90 to 110 feet long, about as long as 1.5 to 2 subway cars.'],
+    ['basepath','mayflower','The Mayflower was roughly 90 to 110 feet long, close to the 90 feet between bases on a baseball diamond.'],
+    ['manhattan_len','paraderoute','The Macy\'s Thanksgiving Day Parade route is 2.5 miles (4 kilometers), less than one fifth the length of Manhattan.'],
+    ['marathon','paraderoute','The Macy\'s parade route is about one tenth of a marathon, which is 26.2 miles.']
+  ],
+  '2026-12-11':[
+    ['taxi','lrv','Apollo 17 landed on the Moon on December 11, 1972. Its Lunar Roving Vehicle was 3.1 meters long, a little shorter than a taxi.'],
+    ['manhattan_len','a17drive','The Apollo 17 astronauts drove about 35.7 kilometers across the Moon, about 1.65 times the length of Manhattan.'],
+    ['lunarmodule','lrv','The rover, 3.1 meters long, was less than half as tall as the Lunar Module that carried it to the Moon.'],
+    ['statue','saturnv','The Saturn V rocket that launched Apollo 17 was about 111 meters tall, about 2.4 times as tall as the Statue of Liberty without her base.'],
+    ['marathon','a17drive','Apollo 17 was the last Apollo mission to land on the Moon. Over three moonwalks the crew drove about 22 miles, almost as far as a marathon (26.2 miles).']
+  ],
+  '2026-12-14':[
+    ['bennu','phaethon','The Geminid meteor shower comes from asteroid 3200 Phaethon, which is about 5 to 6 kilometers wide, over 10 times as wide as the asteroid Bennu.'],
+    ['phaethon','phobos','Mars\'s moon Phobos averages about 22 kilometers wide, about 4 times as wide as Phaethon.'],
+    ['manhattan_len','phaethon','Phaethon is about 5.5 kilometers wide, about one quarter the length of Manhattan.'],
+    ['everest','phaethon','Asteroid Phaethon is a bit narrower than Mount Everest is tall.'],
+    ['phaethon','chicxulub','The asteroid that ended the dinosaurs was about 10 kilometers wide, nearly twice as wide as Phaethon.']
+  ],
+  '2026-12-17':[
+    ['cessna','wrightflyer','On December 17, 1903, the Wright brothers made the first powered flight. The Wright Flyer\'s wingspan was 12.3 meters, a bit wider than a Cessna 172\'s.'],
+    ['jet747','firstflight','The first flight covered just 120 feet (37 meters), shorter than the wingspan of a Boeing 747.'],
+    ['football_len','longflight','The longest flight that day, by Wilbur, went 852 feet (260 meters) in 59 seconds, about 2.4 football fields with end zones.'],
+    ['intrepid','longflight','That longest flight, 852 feet, was almost exactly the length of the USS Intrepid, which is 872 feet.'],
+    ['jet747','wrightflyer','A Boeing 747\'s wingspan is about 5 times as wide as the Wright Flyer\'s.']
+  ],
+  '2026-12-21':[
+    ['hoop','sarsen','Stonehenge\'s big upright stones, called sarsens, are about 13 feet (4 meters) tall, a bit taller than a basketball hoop, which is 10 feet.'],
+    ['person','sarsen','A sarsen stone at Stonehenge is about 4 meters tall and weighs around 25 tons. It is more than two adults tall.'],
+    ['bus','stonecircle','The ring of sarsen stones at Stonehenge is about 100 feet (30 meters) across, about 2.5 school buses long. The monument lines up with the winter solstice sunset.'],
+    ['collegiate','stonecircle','Stonehenge\'s circle is about 30 meters across, about 70% of the height of Collegiate\'s building.'],
+    ['jupiter','sun','The Sun is about 10 times as wide as Jupiter. Today is the winter solstice, when the Northern Hemisphere is tilted farthest from the Sun.']
+  ],
+  '2026-12-31':[
+    ['person','ball','The Times Square New Year\'s Eve ball is a geodesic sphere 12 feet (3.7 meters) across, more than twice as tall as an adult. It weighs 11,875 pounds and is covered with 2,688 crystal triangles.'],
+    ['ball1907','ball','The first ball, dropped in 1907, was 5 feet across. Today\'s ball is 12 feet, about 2.4 times as wide.'],
+    ['subwaycar','balldrop','The ball slides down a flagpole 77 feet (23 meters) in 60 seconds, a bit more than the length of a 60 foot subway car.'],
+    ['phone','crystal','Each crystal triangle on the ball is about 5 inches (13 centimeters) on a side, a bit shorter than a smartphone is tall.'],
+    ['collegiate','balldrop','The ball\'s 77 foot drop is about half the height of Collegiate\'s building, which is 143 feet.']
   ]
 };
-const DAY_NOTE={'2026-11-10':'Today marks 51 years since the SS Edmund Fitzgerald sank in Lake Superior (November 10, 1975). Every round today is about the ship.'};
+const DAY_NOTE={
+  '2026-11-10':'Today marks 51 years since the SS Edmund Fitzgerald sank in Lake Superior (November 10, 1975). Every round today is about the ship.',
+  '2026-11-17':'The Leonid meteor shower peaks tonight and tomorrow morning. Every Leonid is a speck of dust from Comet Tempel-Tuttle, hitting our atmosphere at about 71 kilometers per second.',
+  '2026-11-19':'On November 19, 1969, Apollo 12 landed on the Moon. Today is Moon day.',
+  '2026-11-24':'On November 24, 1859, Charles Darwin published On the Origin of Species. Today is Darwin day.',
+  '2026-11-26':'Happy Thanksgiving! Today\'s game is about the Mayflower and the Macy\'s Thanksgiving Day Parade.',
+  '2026-12-11':'Apollo 17 landed on the Moon on December 11, 1972. It was the last Apollo mission to land there.',
+  '2026-12-14':'The Geminid meteor shower peaks tonight. It is unusual because its parent is an asteroid, 3200 Phaethon, not a comet.',
+  '2026-12-17':'On December 17, 1903, Orville and Wilbur Wright made the first powered, controlled flights at Kitty Hawk, North Carolina.',
+  '2026-12-21':'Today is the winter solstice, the shortest day of the year in the Northern Hemisphere. Stonehenge lines up with the winter solstice sunset.',
+  '2026-12-31':'Tonight the Times Square ball drops to start the new year.'
+};
+/* New rounds that join the rotation from EXTRA_START on. Earlier days keep exactly the lineup students already saw. */
+const EXTRA_START='2026-11-13';
+const EXTRA={
+  space:[
+    ['lviolet','lred','Red light has a wavelength about 1.75 times as long as violet light. Our eyes can see wavelengths from about 400 nm (violet) to 700 nm (red).'],
+    ['virus','lred','Light waves are longer than a flu virus, so an ordinary light microscope can never show a virus clearly. Scientists use electron microscopes instead.'],
+    ['ecoli','lred','Bacteria like E. coli are about 3 times as long as a red light wave, which is why a school microscope can see them.'],
+    ['atom','xray','X-rays have wavelengths about as short as an atom is wide. That is why scientists can use them to map the shapes of crystals and molecules.'],
+    ['xray','dna','The double-helix shape of DNA was worked out using X-ray images. DNA is about 20 times wider than an X-ray wavelength.'],
+    ['lred','lir','The infrared light from a TV remote is invisible because its wavelength, about 940 nm, is just longer than red light.'],
+    ['phone','wifi','A Wi-Fi wave is about as long as a smartphone is tall.'],
+    ['wifi','microw','Wi-Fi and microwave ovens both use radio waves of about 2.4 GHz, so their waves are almost exactly the same length.'],
+    ['wifi','fiveg','5G millimeter waves are about 12 times shorter than Wi-Fi waves. They carry a lot of data, but they do not travel far or pass through walls well.'],
+    ['taxi','fm','An FM radio wave at 100 MHz is about 3 meters long, a bit shorter than a taxi.'],
+    ['eiffel','am','An AM radio wave at 1000 kHz is about 300 meters long, nearly as long as the Eiffel Tower is tall.'],
+    ['collegiate','am','An AM radio wave is about 300 meters long. That is about 7 times the height of Collegiate\'s building.'],
+    ['murphy','a440','Sound travels at about 343 meters per second in air. At that speed, the note A (440 Hz) has a wavelength of about 78 cm, a bit longer than Murphy.'],
+    ['bus','bass','A deep 50 Hz bass note makes a sound wave about 6.9 meters long, more than half the length of a school bus.'],
+    ['wifi','a20k','The highest sound people can hear (20,000 Hz) has a wavelength of about 1.7 cm. A Wi-Fi radio wave is about 7 times longer.']
+  ],
+  bio:[
+    ['person','dnalen','If you stretched out the DNA from just one of your cells, it would be about 2 meters long, longer than you are tall. It is packed into a nucleus only about 6 micrometers wide.'],
+    ['taxi','gut','Your small intestine is about 6 to 7 meters long, longer than a taxi, folded up inside your belly.']
+  ],
+  wild:[
+    ['hair','pixel','On a sharp phone screen (about 460 pixels per inch), one pixel is about 55 micrometers wide, a little narrower than a human hair.'],
+    ['phone','ps5','A PlayStation 5 standing up is about 39 cm tall, about 2.7 smartphones stacked end to end.'],
+    ['saturnv','starship','SpaceX\'s Starship, with its booster, is about 121 meters tall. That is about 10% taller than the Saturn V that took astronauts to the Moon.'],
+    ['collegiate','starship','Starship is about 2.8 times as tall as Collegiate\'s building.'],
+    ['statue','starship','Starship is about 2.6 times as tall as the Statue of Liberty, not counting her base.'],
+    ['basketball','rim','The rim is 18 inches across, and a basketball is about 9.5 inches. That is only about 1.9 balls wide.'],
+    ['person','hoop','The hoop is 10 feet high at every level, from middle school to the NBA. That is about 1.8 average adults, one on top of the other.'],
+    ['taxi','court','An NBA court is 94 feet long, almost 6 taxis end to end.'],
+    ['subwaycar','mound','The pitcher\'s mound is 60 feet 6 inches from home plate. A subway car is 60 feet long, so they are almost exactly the same.'],
+    ['manhattan_len','marathon','A marathon is 26.2 miles, almost 2 times the length of Manhattan from tip to tip.'],
+    ['bus','pool','An Olympic pool is 50 meters long, more than 4 school buses end to end.'],
+    ['greatwhite','megalodon','Megalodon was probably about 2.5 times as long as the biggest great white sharks. Scientists estimate between 13 and 18 meters, so this size is approximate.'],
+    ['bus','whaleshark','The whale shark, the biggest fish alive, can be about as long as a school bus.'],
+    ['bus','megalodon','Megalodon was probably about 25% longer than a school bus. Scientists are still debating its exact size.'],
+    ['taxi','greatwhite','A very big great white shark is about 6 meters long, a bit longer than a taxi.'],
+    ['bus','gsquid','The giant squid grows up to about 12 meters, about the length of a school bus. Most of that length is its two long feeding tentacles.'],
+    ['subwaycar','megalodon','Megalodon was probably a bit shorter than a 60-foot subway car, about 80% as long.'],
+    ['phone','megatooth','The biggest megalodon tooth ever found is 18.4 centimeters long, longer than a smartphone is tall.'],
+    ['ward','moai','A typical moai on Easter Island is about 2.3 Mr. Wards tall.'],
+    ['ward','trex','A T. rex was about 7 Mr. Wards long.'],
+    ['ward','hoop','A basketball hoop is 10 feet high, about 1.7 times Mr. Ward\'s height.'],
+    ['murphy','ward','Mr. Ward is about 3.6 Murphys tall.'],
+    ['ward','statue','The Statue of Liberty, not counting her base, is about 26 Mr. Wards tall.'],
+    ['ward','collegiate','Collegiate\'s building is about 24.5 Mr. Wards tall.']
+  ],
+  history:[
+    ['person','moai','The average moai is about 13 feet (4 meters) tall, more than 2 adults standing on each other\'s shoulders. They are called Easter Island heads, but most have bodies. Many are buried up to their shoulders.'],
+    ['moai','paro','Paro, the tallest moai ever raised, was about 33 feet (9.8 meters) tall and weighed about 82 tons.'],
+    ['bus','paro','Paro stood almost as tall as a school bus is long.'],
+    ['subwaycar','gigante','El Gigante was never finished and is still attached to the rock at the Rano Raraku quarry. At about 72 feet, it is longer than a subway car.'],
+    ['statue','gigante','El Gigante would have been about half as tall as the Statue of Liberty without her base. It would have weighed 150 tons or more.']
+  ]
+};
+/* A second batch of rounds that joins the rotation from EXTRA2_START on (earlier days keep the lineup students already saw). */
+const EXTRA2_START='2026-11-16';
+const EXTRA2={
+  bio:[
+    ['hair','amoeba','An amoeba is about half a millimeter across, as wide as 5 to 7 human hairs side by side. It has no fixed shape, so its size is its greatest width.'],
+    ['rbc','amoeba','About 60 to 70 red blood cells would fit side by side across one amoeba.'],
+    ['paramecium','amoeba','An amoeba is about 2.5 times as long as a paramecium.'],
+    ['cheek','paramecium','A paramecium, about 200 micrometers long, is more than 3 times as long as a human cheek cell is wide.'],
+    ['paramecium','tardigrade','A tardigrade is usually about half a millimeter long, about 2.5 times as long as a paramecium.'],
+    ['hair','tardigrade','A tardigrade is usually about half a millimeter long, as long as 7 human hairs are wide. The biggest ones reach about 1.5 millimeters.'],
+    ['egg','tardigrade','A tardigrade, about half a millimeter long, is about 4 times as long as a human egg cell is wide.'],
+    ['pollen','hair','A human hair is more than twice as wide as a grain of grass pollen, which is about 30 micrometers across.'],
+    ['yeast','pollen','A grain of grass pollen is about 6 yeast cells wide.'],
+    ['virus','bacteriophage','A T4 bacteriophage, a virus that attacks bacteria, is about 200 nanometers tall, about twice the size of a flu virus.'],
+    ['ecoli','bacteriophage','A bacteriophage is only about one tenth as long as the E. coli bacterium it attacks.'],
+    ['person','neuron','The longest neuron in your body runs from the base of your spine to your foot, up to about 1 meter. That is more than half your height.'],
+    ['person','elephant','An African elephant stands about 3.3 meters tall at the shoulder, almost twice as tall as an adult.'],
+    ['person','giraffe','The giraffe is the tallest land animal, up to about 5.5 meters, more than 3 adults stacked up.'],
+    ['elephant','giraffe','A tall giraffe is about 1.7 times as tall as an African elephant is at the shoulder.'],
+    ['person','penguin','An emperor penguin, the biggest penguin, is about 1.2 meters tall, about 70% of an adult\'s height.'],
+    ['bus','humpback','A humpback whale is about 13.5 meters long on average, a bit longer than a school bus.'],
+    ['whale','humpback','A humpback whale is less than half as long as a blue whale.'],
+    ['taxi','dolphin','A bottlenose dolphin is usually between 2 and 4 meters long, so a typical one is a bit more than half the length of a taxi.'],
+    ['person','komodo','A big Komodo dragon can grow to about 3 meters long, almost twice as long as an adult is tall.'],
+    ['taxi','octopus','A big giant Pacific octopus can stretch its arms about 4 meters from tip to tip, a bit shorter than a taxi. A record from 1885 claimed 9.8 meters, but scientists doubt it.']
+  ],
+  wild:[
+    ['person','mammoth','A woolly mammoth stood about 3 meters tall at the shoulder, nearly twice as tall as an adult.'],
+    ['elephant','mammoth','A woolly mammoth, about 3 meters at the shoulder, was a bit smaller than a big African elephant.'],
+    ['bus','ankylosaurus','Ankylosaurus was an armored dinosaur about 6 to 8 meters long, roughly half the length of a school bus.'],
+    ['trex','ankylosaurus','Ankylosaurus was about half as long as a T. rex, but it was covered in bony armor and had a heavy club on its tail.'],
+    ['phone','trilobite','Most trilobites were 2 to 7 centimeters long. A typical one was about a third as long as a smartphone is tall.'],
+    ['person','grandpiano','A concert grand piano is about 2.74 meters long, more than 1.5 adults lying end to end.'],
+    ['murphy','grandpiano','A concert grand piano is 2.74 meters long, about 5 and a half Murphys.']
+  ],
+  space:[
+    ['person','lunarmodule','The Apollo Lunar Module stood about 7 meters tall on its legs, four times as tall as an adult. It was 9.4 meters across.'],
+    ['bus','lunarmodule','The Apollo Lunar Module was about 7 meters tall, a bit more than half the length of a school bus.'],
+    ['taxi','perseverance','NASA\'s Perseverance rover is about 3 meters long, a little shorter than a taxi.'],
+    ['person','perseverance','NASA\'s Perseverance rover is about 3 meters long, almost 2 adults lying end to end.'],
+    ['person','voyager','The main dish on each Voyager spacecraft is 3.7 meters across, more than two adults tall.'],
+    ['taxi','voyager','Voyager\'s main antenna dish is 3.7 meters across, a bit narrower than a taxi is long.'],
+    ['galaxy','galdist','The Andromeda galaxy is about 2.5 million light-years away. That is about 25 times the width of the Milky Way, which is about 100,000 light-years across.']
+  ],
+  history:[
+    ['subwaycar','sphinx','The Great Sphinx is about 73 meters long, as long as 4 subway cars end to end.'],
+    ['bus','sphinx','The Great Sphinx is about 73 meters long, as long as 6 school buses.'],
+    ['statue','pisa','The Leaning Tower of Pisa is about 56 meters tall, about 1.2 times as tall as the Statue of Liberty without her base. It started leaning while it was being built.'],
+    ['statue','spaceneedle','The Space Needle in Seattle is 605 feet (184 meters) tall, about 4 times as tall as the Statue of Liberty without her base.'],
+    ['eiffel','spaceneedle','The Space Needle is about 56% as tall as the Eiffel Tower.'],
+    ['statue','tajmahal','The Taj Mahal is about 73 meters tall, about 1.6 times as tall as the Statue of Liberty without her base.'],
+    ['ferry','sydneyopera','The Sydney Opera House is 183 meters long, almost twice as long as a Staten Island Ferry.'],
+    ['football_len','colosseum','The Colosseum is about 189 meters long, about 1.7 times as long as a football field with its end zones.'],
+    ['bbspan','goldengate','The Golden Gate Bridge has a main span of 1,280 meters, about 2.6 times the main span of the Brooklyn Bridge.'],
+    ['verrazzano','goldengate','The main span of the Golden Gate Bridge (1,280 meters) is almost exactly as long as the Verrazzano-Narrows Bridge\'s main span (1,298 meters).'],
+    ['earth','greatwall','The Great Wall of China, counting all its branches, is about 21,196 kilometers long, about 1.7 times as long as Earth is wide.'],
+    ['moon','greatwall','The Great Wall of China, with all its branches, is about 21,196 kilometers long, about 6 times as long as the Moon is wide.']
+  ],
+  nycCol:[
+    ['collegiate','citigroup','Citigroup Center in Midtown is 915 feet (279 meters) tall, about 6.4 times as tall as Collegiate\'s building.'],
+    ['collegiate','spaceneedle','Seattle\'s Space Needle is 605 feet tall, about 4.2 times as tall as Collegiate\'s building.'],
+    ['collegiate','pisa','The Leaning Tower of Pisa is about 56 meters tall, about 1.3 times as tall as Collegiate\'s building.'],
+    ['collegiate','sphinx','The Great Sphinx is about 73 meters long, about 1.7 times as long as Collegiate\'s building is tall.'],
+    ['collegiate','tajmahal','The Taj Mahal is about 73 meters tall, about 1.7 times as tall as Collegiate\'s building.'],
+    ['collegiate','colosseum','The Colosseum is about 189 meters long, more than 4 times the height of Collegiate\'s building.'],
+    ['collegiate','goldengate','The main span of the Golden Gate Bridge is 1,280 meters, about 29 times the height of Collegiate\'s building.'],
+    ['collegiate','guggenheim','The round part of the Guggenheim is about 128 feet (39 meters) across at the top, a bit less than the height of Collegiate\'s building. Its spiral ramp is a quarter of a mile long.']
+  ],
+  nyc:[
+    ['empire','citigroup','Citigroup Center, at 915 feet, is about 73% as tall as the Empire State Building is to its roof.'],
+    ['statue','guggenheim','The round part of the Guggenheim Museum is about 39 meters across, about 85% of the Statue of Liberty\'s height without her base.']
+  ]
+};
 /* Teacher's pick: pin a biology round to a date. Format: 'YYYY-MM-DD':['reference','target','fun fact']. Pinned rounds are NOT in the regular rotation, so no other day changes. */
 const FEATURED={'2026-11-02':['cheek','onion','Onion skin cells are brick-shaped and about 4 times as long as a cheek cell is wide. Both are classic microscope-lab cells, but only the onion cell has a cell wall.']};
 /* The Edmund Fitzgerald takes over the wild-card round on these weekdays (0=Sun ... 6=Sat), starting on this date.
@@ -1147,9 +1549,11 @@ function fitzNth(dayIdx){let n=0;for(let i=dateToIdx(FITZ_START);i<dayIdx;i++){i
 function buildDay(dayIdx){
   const full=FULL_DAYS[idxToDate(dayIdx)];
   if(full)return full.map(([ref,tgt,fact])=>({ref,tgt,fact}));
+  const dsx=idxToDate(dayIdx),useExtra=dsx>=EXTRA_START,useExtra2=dsx>=EXTRA2_START;
+  const P=k=>POOL[k].concat(useExtra&&EXTRA[k]?EXTRA[k]:[],useExtra2&&EXTRA2[k]?EXTRA2[k]:[]);
   const colDay=(((dayIdx%6)+6)%6)!==5;   /* the Collegiate building turns up in 5 of every 6 days */
   const fp=FEATURED[idxToDate(dayIdx)],bioPick=fp||null;
-  const sel=[bioPick||pick(POOL.bio,dayIdx,'bio'),colDay?pick(POOL.nycCol,dayIdx,'nycCol'):pick(POOL.nyc,dayIdx,'nyc'),pick(POOL.space,dayIdx,'space'),pick(POOL.history,dayIdx,'history'),isFitzDay(idxToDate(dayIdx))?pick(POOL.fitz,fitzNth(dayIdx),'fitz'):pick(POOL.wild,dayIdx,'wild')];
+  const sel=[bioPick||pick(P('bio'),dayIdx,'bio'),colDay?pick(P('nycCol'),dayIdx,'nycCol'):pick(P('nyc'),dayIdx,'nyc'),pick(P('space'),dayIdx,'space'),pick(P('history'),dayIdx,'history'),isFitzDay(idxToDate(dayIdx))?pick(POOL.fitz,fitzNth(dayIdx),'fitz'):pick(P('wild'),dayIdx,'wild')];
   return shuffle(sel,rng(hash('order'+dayIdx))).map(([ref,tgt,fact])=>({ref,tgt,fact}));
 }
 const dateToIdx=s=>{const [y,m,d]=s.split('-').map(Number);return Math.floor(Date.UTC(y,m-1,d)/864e5)};
@@ -1170,6 +1574,7 @@ function fmtLen(m){
   if(m<0.01)return nice(m*1e3)+' mm';
   if(m<1)return nice(m*100)+' cm';
   if(m<1000)return nice(m)+' m ('+nice(m/0.3048)+' ft)';
+  if(m>=9.4607e14){const ly=m/9.4607e15;return nice(ly)+(ly===1?' light-year':' light-years')}
   return nice(m/1000)+' km';
 }
 function fmtArea(a){
@@ -1236,6 +1641,28 @@ function nyToday(){
 }
 const TODAY=nyToday();
 const DAYS=Array.from({length:4},(_,i)=>idxToDate(dateToIdx(TODAY)-i));
+
+/* ----- challenge a friend: a link carries the game date and the five round scores (no names, nothing stored on a server) ----- */
+function parseChallenge(v){
+  const m=/^(\d{4}-\d{2}-\d{2})\.(\d{1,3})-(\d{1,3})-(\d{1,3})-(\d{1,3})-(\d{1,3})$/.exec(v||'');
+  if(!m)return null;
+  const s=m.slice(2).map(Number);
+  if(s.some(x=>x>100))return null;
+  return {day:m[1],s};
+}
+const CH=parseChallenge(params.get('c'));
+const CH_OPEN=!!CH&&DAYS.includes(CH.day);
+const challengeLink=()=>location.origin+location.pathname+'?c='+G.day+'.'+G.prog.s.join('-');
+function renderVs(){
+  const el=$('#vs');
+  if(!CH_OPEN||CH.day!==G.day||G.prog.s.length<ROUNDS){el.hidden=true;return}
+  const me=G.prog.s,fr=CH.s,mt=me.reduce((a,b)=>a+b,0),ft=fr.reduce((a,b)=>a+b,0);
+  const d=Math.abs(mt-ft);
+  const verdict=mt>ft?`You beat your friend by ${d} ${d===1?'point':'points'}!`:mt<ft?`Your friend wins by ${d} ${d===1?'point':'points'}. Send a challenge back and get them next time.`:'A perfect tie! Send a challenge back to break it.';
+  const chips=me.map((s,i)=>`<span><i>${i+1}</i><b class="${s>fr[i]?'win':''}">${s}</b>&ndash;<b class="${fr[i]>s?'win':''}">${fr[i]}</b></span>`).join('');
+  el.innerHTML=`<h3>You vs. your friend</h3><div class="vsbig"><span class="${mt>ft?'win':''}">You <b>${mt}</b></span><em>vs</em><span class="${ft>mt?'win':''}">Friend <b>${ft}</b></span></div><div class="vsrounds" aria-label="Round by round, you then your friend">${chips}</div><p class="verdict">${verdict}</p>`;
+  el.hidden=false;
+}
 const key=d=>'msu2:'+d;
 function load(d){try{const o=JSON.parse(localStorage.getItem(key(d)));return o&&Array.isArray(o.s)?o:{s:[],g:[]}}catch(e){return{s:[],g:[]}}}
 function save(d,o){try{localStorage.setItem(key(d),JSON.stringify(o))}catch(e){}}
@@ -1316,7 +1743,10 @@ function stageSize(){const g=$('.glass');return{W:g.offsetWidth||600,H:g.offsetH
 function panelInfo(W){const i=$('#stageInfo'),iw=i.offsetWidth,ih=i.offsetHeight;return iw<W*0.8?{side:iw,band:0}:{side:0,band:ih}}
 function shapeEl(th,which,x,y,w,h,cls){
   const s=SH[th.shape];
-  return `<g data-which="${which}" style="cursor:grab"><svg class="${cls}" x="${x}" y="${y}" width="${w}" height="${h}" viewBox="0 0 ${s.w} ${s.h}" overflow="visible" style="filter:url(#o-${which})"><rect x="0" y="0" width="${s.w}" height="${s.h}" fill="transparent"/><g opacity=".84">${s.svg}</g></svg></g>`;
+  return `<g data-which="${which}" style="cursor:grab"><svg class="${cls}" x="${x}" y="${y}" width="${w}" height="${h}" viewBox="0 0 ${s.w} ${s.h}" overflow="visible" style="filter:url(#${s.img?'ti':'o'}-${which})"><rect x="0" y="0" width="${s.w}" height="${s.h}" fill="transparent"/><g opacity="${s.img?1:.84}">${s.svg}</g></svg></g>`;
+}
+function tintDef(id,line,glow){
+  return `<filter id="ti-${id}" x="-40%" y="-40%" width="180%" height="180%" color-interpolation-filters="sRGB"><feColorMatrix in="SourceGraphic" type="luminanceToAlpha" result="a"/><feFlood flood-color="${line}" result="fl"/><feComposite in="fl" in2="a" operator="in" result="ln"/><feGaussianBlur in="ln" stdDeviation="4.2" result="bl"/><feFlood flood-color="${glow}" result="fg"/><feComposite in="fg" in2="bl" operator="in" result="gl"/><feMerge><feMergeNode in="gl"/><feMergeNode in="gl"/><feMergeNode in="ln"/></feMerge></filter>`;
 }
 function outlineDef(id,color,rad){
   return `<filter id="o-${id}" x="-45%" y="-45%" width="190%" height="190%" color-interpolation-filters="sRGB"><feMorphology in="SourceAlpha" operator="dilate" radius="${rad.toFixed(3)}" result="d"/><feComponentTransfer in="d" result="d2"><feFuncA type="discrete" tableValues="0 1"/></feComponentTransfer><feFlood flood-color="${color}" result="f"/><feComposite in="f" in2="d2" operator="in" result="o"/><feGaussianBlur in="o" stdDeviation="${(rad*2.2).toFixed(2)}" result="gl"/><feMerge><feMergeNode in="gl"/><feMergeNode in="o"/><feMergeNode in="SourceGraphic"/></feMerge></filter>`;
@@ -1349,7 +1779,7 @@ function paint(tM,ghostM,opt){
   const rl=place('ref',rp,x0,rp.w), tl=place('tgt',tp,x0+rp.w+gap,slot.w);
   G.cur={ref:{cx:rl.cx,by:rl.by},tgt:{cx:tl.cx,by:tl.by}};
   const rad=(l,which)=>Math.max(0.01,Math.min(2.4*SH[(which==='ref'?r:t).shape].w/l.w,SH[(which==='ref'?r:t).shape].w*0.12));
-  let s=`<defs>${outlineDef('ref','#7FD6FF',rad(rl,'ref'))}${outlineDef('tgt','#FFE0A8',rad(tl,'tgt'))}<linearGradient id="medalGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFE45E"/><stop offset=".55" stop-color="#FF7A1A"/><stop offset="1" stop-color="#FF2E97"/></linearGradient></defs>`;
+  let s=`<defs>${outlineDef('ref','#7FD6FF',rad(rl,'ref'))}${outlineDef('tgt','#FFE0A8',rad(tl,'tgt'))}${tintDef('ref','#8FD8FF','#2D7BFF')}${tintDef('tgt','#FFD9A0','#FF7A1A')}<linearGradient id="medalGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFE45E"/><stop offset=".55" stop-color="#FF7A1A"/><stop offset="1" stop-color="#FF2E97"/></linearGradient></defs>`;
   s+=`<line class="ruler" x1="0" x2="${We}" y1="${base+9}" y2="${base+9}"/><line class="ground" x1="0" x2="${We}" y1="${base}" y2="${base}"/>`;
   /* bigger shape first, so the smaller one is drawn (and grabbed) in front */
   const order=[[rl,r,'ref'],[tl,t,'tgt']].sort((p,q)=>(q[0].w*q[0].h)-(p[0].w*p[0].h)||(p[2]==='tgt'?1:-1));
@@ -1386,7 +1816,7 @@ function setRound(){
   $('#roundLabel').textContent=`Round ${G.ri+1} of ${ROUNDS}`;
   $('#prompt').textContent=`Make ${ph(t)} the right size next to ${ph(r)}.`;
   $('#subprompt').textContent=(r.kind==='area'||t.kind==='area')?'Compare how much ground each one covers. The outlines are simplified, so judge the area, not the exact shape.':`Compare the ${r.m} of ${the(r)} with the ${t.m} of ${the(t)}.`;
-  $('#hint').textContent=G.ri===0?(DAY_NOTE[G.day]||'The slider resizes the orange shape. Drag either shape to move it and compare.'):'';
+  $('#hint').textContent=G.ri===0?(CH_OPEN&&CH.day===G.day?'A friend challenged you on this game. Finish all 5 rounds to see who wins.':(DAY_NOTE[G.day]||'The slider resizes the orange shape. Drag either shape to move it and compare.')):'';
   $('#hint').hidden=G.ri!==0;
   $('#infoPre').hidden=false;$('#infoRes').hidden=true;$('#stageInfo').classList.remove('scroll');
   $('#legRef').innerHTML=`<b>Reference:</b> ${r.name}${r.desc?' ('+r.desc+')':''}, ${r.lab}`;
@@ -1545,6 +1975,8 @@ function totalSVG(h,bin,tot){
 }
 function medalSVG(pct){
   const m=pct>=90?['GOLD','#FFE45E']:pct>=75?['SILVER','#DDE6FF']:pct>=50?['BRONZE','#FF9A4A']:['ROOKIE','#FF5CB8'];
+  const mk='medal-'+(pct>=90?'gold':pct>=75?'silver':pct>=50?'bronze':'rookie');
+  if(IMGM[mk])return{label:m[0],svg:`<img src="img/${mk}.png" alt="" onerror="this.style.display='none'">`};
   return{label:m[0],svg:`<svg viewBox="0 0 70 84"><path d="M17 0 L29 30 L41 30 L53 0 L43 0 L35 18 L27 0Z" fill="#FF2E97"/><circle cx="35" cy="52" r="26" fill="${m[1]}" stroke="#fff" stroke-width="3"/><circle cx="35" cy="52" r="19" fill="none" stroke="#07051A" stroke-opacity=".45" stroke-width="2" stroke-dasharray="3 3"/><path d="M35 40 l3.6 7.6 8.4 1 -6.2 5.7 1.7 8.3 -7.5-4.2 -7.5 4.2 1.7-8.3 -6.2-5.7 8.4-1z" fill="#07051A" fill-opacity=".75"/></svg>`};
 }
 function renderCrowd(d,tot){
@@ -1615,6 +2047,8 @@ function showDone(){
   $('#doneBubble').textContent=totalMsg(tot,G.day,gentleDay);
   const dk=picFor(tot/ROUNDS,G.day);$('#donePic').src=PICS[dk][0];$('#donePic').alt=capFor(dk,tot/ROUNDS,gentleDay);$('#doneCap').textContent=capFor(dk,tot/ROUNDS,gentleDay);
   $('#dayNote').textContent=DAY_NOTE[G.day]||'';$('#dayNote').hidden=!DAY_NOTE[G.day];
+  $('#challenge').hidden=gentleDay;
+  renderVs();
   setTotal(tot);
   $('#doneTitle').textContent=G.day===TODAY?'Today\'s game is complete!':'Game complete!';
   drawBoard();
@@ -1626,14 +2060,17 @@ function showDone(){
   renderDays();
   crowdStart(tot);
 }
-function startDay(d){
+async function startDay(d){
   cancelAnimationFrame(G.raf);G.animating=false;
+  const tok=G.startTok=(G.startTok||0)+1;
   G.day=d;G.rounds=buildDay(dateToIdx(d));G.prog=load(d);
   const sig=G.rounds.map(c=>c.ref+'>'+c.tgt).join('|');
   if(G.prog.sig!==sig&&(G.prog.sig||FEATURED[d]||FULL_DAYS[d])){G.prog={s:[],g:[]};}
   if(G.prog.sig!==sig){G.prog.sig=sig;save(d,G.prog)}
   G.ri=Math.min(G.prog.s.length,ROUNDS-1);
   renderDays();
+  await ensureImgs(G.rounds);
+  if(tok!==G.startTok)return;
   if(G.prog.s.length>=ROUNDS){showDone();return}
   $('#done').hidden=true;$('#play').hidden=false;$('#roundbox').hidden=false;
   setRound();
@@ -1702,6 +2139,15 @@ $('#share').addEventListener('click',async()=>{
   try{await navigator.clipboard.writeText(txt);$('#share').textContent='Copied!'}catch(e){$('#share').textContent=txt}
   setTimeout(()=>{$('#share').textContent='Copy my score'},2500);
 });
+$('#challenge').addEventListener('click',async()=>{
+  const link=challengeLink(),tot=sumScores();
+  const lab=new Date(G.day+'T12:00:00Z').toLocaleDateString('en-US',{month:'short',day:'numeric',timeZone:'UTC'});
+  const msg=`I scored ${tot}/${ROUNDS*100} on Scize It Up (${lab}). Can you beat me?`;
+  const btn=$('#challenge'),reset=()=>setTimeout(()=>{btn.textContent='Challenge a friend'},2500);
+  if(navigator.share){try{await navigator.share({title:'Scize It Up challenge',text:msg,url:link});return}catch(e){if(e&&e.name==='AbortError')return}}
+  try{await navigator.clipboard.writeText(msg+' '+link);btn.textContent='Link copied!';reset()}
+  catch(e){window.prompt('Copy this link and send it to a friend:',msg+' '+link)}
+});
 $('#again').addEventListener('click',()=>{try{localStorage.removeItem(key(G.day))}catch(e){}startDay(G.day)});
 /* wide landscape screens get a 16:9 canvas (1280x720) scaled to fit; everything else stays fluid */
 function fitCanvas(){
@@ -1721,7 +2167,8 @@ if(TEACHER){
   const tb=$('#teacherBar');tb.hidden=false;
   tb.textContent='Teacher mode is on. Placeholder sizes show a note after each round. Add ?day=YYYY-MM-DD to treat any date as "today".';
 }
-startDay(TODAY);
+if(CH&&!CH_OPEN){const b=document.createElement('p');b.className='challengebanner';b.textContent='That challenge game is no longer open. Here is today\'s game instead.';$('#days').parentNode.insertBefore(b,$('#days'));setTimeout(()=>b.remove(),9000)}
+startDay(CH_OPEN?CH.day:TODAY);
 }
 
 </script>
